@@ -17,7 +17,7 @@ namespace YimMenu
 	    m_Initialized(false),
 	    m_Resizing(false),
 	    m_FontsUpdated(false),
-	    m_SafeToRender(false)
+		m_SafeToRender(false)
 	{
 	}
 
@@ -190,7 +190,7 @@ namespace YimMenu
 		m_HeapAllocator.Create(m_Device.Get(), m_DescriptorHeap.Get());
 
 		// never returns false, useless to check return
-		ImGuiContext* ctx = ImGui::CreateContext(nullptr);
+		ImGuiContext* ctx =ImGui::CreateContext(nullptr);
 		ImGui::SetCurrentContext(ctx);
 
 		ImGui_ImplWin32_Init(*Pointers.Hwnd);
