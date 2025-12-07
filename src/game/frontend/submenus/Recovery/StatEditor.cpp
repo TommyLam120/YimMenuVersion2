@@ -11,10 +11,6 @@
 #include <utility>
 #include <vector>
 
-
-using stats_vec = std::vector<std::pair<std::string, std::string>>;
-using packed_vec = std::vector<std::pair<uint32_t, uint8_t>>;
-
 namespace YimMenu::Submenus
 {
 	struct StatInfo
@@ -64,50 +60,36 @@ namespace YimMenu::Submenus
 		        string | std::views::reverse,
 		        [](auto c) {
 			        return std::isspace(c);
-		        })
-		        .base()};
+		        }).base()};
 	}
 
 	static StatInfo GetStatInfo(std::string_view name_str)
 	{
 		StatInfo name{};
-
-		// It is known that the shortest statistical data is:
-		// SM_TRI,int
-		if (name_str.size() <= 5)
-			return name;
-
-		std::string name_upper(name_str);
-
-		std::transform(name_upper.begin(), name_upper.end(), name_upper.begin(), [](unsigned char c) {
-			return std::toupper(c);
-		});
-
-		if (name_upper.starts_with('$'))
+		name.m_Name = name_str;
+		if (std::string_view(name.m_Name).starts_with('$'))
 		{
-			name_upper.erase(0, 1);
+			name.m_Name.erase(0, 1);
 			name.m_Normalized = true;
 		}
-
-		if (name_upper.starts_with("MPX"))
+		if (std::string_view(name.m_Name).starts_with("MPX"))
 		{
 			auto last_char = Pointers.StatsMgr->GetStat("MPPLY_LAST_MP_CHAR"_J);
 			auto char_index = last_char ? last_char->GetInt() : 0;
-			name_upper.replace(2, 1, std::to_string(char_index));
+			name.m_Name.replace(0, 3, "MP" + std::to_string(char_index));
 			name.m_Normalized = true;
 		}
-		else if (name_upper.starts_with("SPX"))
+		else if (std::string_view(name.m_Name).starts_with("SPX"))
 		{
-			//func_174() Global_1574927 online is 145
+			// func_174() Global_1574927 online is 145
 			auto char_index = *ScriptGlobal(114370).At(2367).At(539).At(4321).As<int*>();
-			if (char_index >= 0 && char_index <= 2)
+			if (char_index == 0 || char_index == 1 || char_index == 2)
 			{
-				name_upper.replace(2, 1, std::to_string(char_index));
+				name.m_Name.replace(0, 3, "SP" + std::to_string(char_index));
 				name.m_Normalized = true;
 			}
 		}
 
-		name.m_Name = std::move(name_upper);
 		name.m_NameHash = Joaat(name.m_Name);
 		name.m_Data = Pointers.StatsMgr->GetStat(name.m_NameHash);
 		return name;
@@ -146,6 +128,7 @@ namespace YimMenu::Submenus
 		case sStatData::Type::STRING:
 			strncpy(value.m_AsString, data->GetString(), sizeof(value.m_AsString));
 			return std::format("{}", value.m_AsString);
+			;
 		case sStatData::Type::USERID:
 			data->GetUserID(value.m_AsString, sizeof(value.m_AsString));
 			return std::format("{}", value.m_AsString);
@@ -169,12 +152,12 @@ namespace YimMenu::Submenus
 		switch (data->GetType())
 		{
 		case sStatData::Type::_BOOL:
-			STATS::STAT_SET_BOOL(hash, value.m_AsBool, true);
-			//data->SetBool(value.m_AsBool);
+			//STATS::STAT_SET_BOOL(hash, value.m_AsBool, true);
+			data->SetBool(value.m_AsBool);
 			return;
 		case sStatData::Type::FLOAT:
-			STATS::STAT_SET_FLOAT(hash, value.m_AsFloat[0], true);
-			//data->SetFloat(value.m_AsFloat[0]);
+			//STATS::STAT_SET_FLOAT(hash, value.m_AsFloat[0], true);
+			data->SetFloat(value.m_AsFloat[0]);
 			return;
 		case sStatData::Type::INT:
 			data->SetInt(value.m_AsInt);
@@ -186,8 +169,8 @@ namespace YimMenu::Submenus
 			data->SetUInt16(value.m_AsInt);
 			return;
 		case sStatData::Type::UINT32:
-			STATS::STAT_SET_INT(hash, value.m_AsInt, true);
-			//data->SetUInt64(value.m_AsInt);
+			//STATS::STAT_SET_INT(hash, value.m_AsInt, true);
+			data->SetUInt64(value.m_AsInt);
 			return;
 		case sStatData::Type::INT64:
 			data->SetInt64(value.m_AsU64); // TODO this isn't a good idea! natives can't set this
@@ -198,12 +181,12 @@ namespace YimMenu::Submenus
 			data->SetUInt64(value.m_AsU64);
 			return;
 		case sStatData::Type::STRING:
-			STATS::STAT_SET_STRING(hash, value.m_AsString, true);
-			//data->SetString(value.m_AsString);
+			//STATS::STAT_SET_STRING(hash, value.m_AsString, true);
+			data->SetString(value.m_AsString);
 			return;
 		case sStatData::Type::USERID:
-			STATS::STAT_SET_USER_ID(hash, value.m_AsString, true);
-			//data->SetUserID(value.m_AsString);
+			//STATS::STAT_SET_USER_ID(hash, value.m_AsString, true);
+			data->SetUserID(value.m_AsString);
 			return;
 		case sStatData::Type::DATE:
 			STATS::STAT_SET_DATE(hash, &value.m_date, sizeof(Date) / 8, true);
@@ -245,20 +228,20 @@ namespace YimMenu::Submenus
 				return tolower(c);
 			});
 
-			if (as_string != "false" && as_string != "0")
+			if (as_string != "false" || as_string != "0")
 			{
 				_bool = true;
 			}
 
-			STATS::STAT_SET_BOOL(hash, _bool, true);
-			//data->SetBool(_bool);
+			//STATS::STAT_SET_BOOL(hash, _bool, true);
+			data->SetBool(_bool);
 			return;
 		}
 		case sStatData::Type::FLOAT:
 		{
 			auto _float = std::strtof(value.data(), nullptr);
-			STATS::STAT_SET_FLOAT(hash, _float, true);
-			//data->SetFloat(_float);
+			//STATS::STAT_SET_FLOAT(hash, _float, true);
+			data->SetFloat(_float);
 			return;
 		}
 		case sStatData::Type::INT:
@@ -267,8 +250,8 @@ namespace YimMenu::Submenus
 		case sStatData::Type::UINT32:
 		{
 			auto _int = std::strtol(value.data(), nullptr, 10);
-			STATS::STAT_SET_INT(hash, _int, true);
-			//data->SetInt(_int);
+			//STATS::STAT_SET_INT(hash, _int, true);
+			data->SetInt(_int);
 			return;
 		}
 		case sStatData::Type::INT64:
@@ -286,30 +269,23 @@ namespace YimMenu::Submenus
 			return;
 		}
 		case sStatData::Type::STRING:
-			STATS::STAT_SET_STRING(hash, value.data(), true);
-			//data->SetString(value.data());
+			//STATS::STAT_SET_STRING(hash, value.data(), true);
+			data->SetString(value.data());
 			return;
 		case sStatData::Type::USERID:
-			//data->SetUserID(value.data());
-			STATS::STAT_SET_USER_ID(hash, value.data(), true);
+			data->SetUserID(value.data());
+			//STATS::STAT_SET_USER_ID(hash, value.data(), true);
 			return;
 		case sStatData::Type::DATE:
 		{
-			std::stringstream ss(value.data());
-			std::string token;
+			std::string input = value.data();
 			std::vector<int> date;
-			date.reserve(7);
-
+			std::stringstream ss(input);
+			std::string token;
+			date.clear();
 			while (std::getline(ss, token, ','))
 			{
-				try
-				{
-					date.emplace_back(std::stoi(token));
-				}
-				catch (...)
-				{
-					date.emplace_back(0);
-				}
+				date.emplace_back(std::stoi(token));
 			}
 
 			if (date.size() == 7)
@@ -332,21 +308,14 @@ namespace YimMenu::Submenus
 			return;
 		case sStatData::Type::POS:
 		{
-			std::stringstream ss(value.data());
-			std::string token;
+			std::string input = value.data();
 			std::vector<float> pos;
-			pos.reserve(3);
-
+			std::stringstream ss(input);
+			std::string token;
+			pos.clear();
 			while (std::getline(ss, token, ','))
 			{
-				try
-				{
-					pos.emplace_back(std::stof(token));
-				}
-				catch (...)
-				{
-					pos.emplace_back(0.0f);
-				}
+				pos.emplace_back(std::stof(token));
 			}
 			if (pos.size() == 3)
 			{
@@ -360,7 +329,7 @@ namespace YimMenu::Submenus
 		default:
 			return; // data type not supported
 		}
-	}
+	}	
 
 
 	static bool RenderStatEditor(StatValue& value, sStatData* data)
@@ -410,7 +379,7 @@ namespace YimMenu::Submenus
 				return true;
 			else
 			{
-				ImGui::TextColored(ImVec4(0.957f, 0.643f, 0.376f, 1.00f), "The entered date or time is invalid, please recheck the input data.");
+				ImGui::TextColored(ImVec4(0.957f, 0.643f, 0.376f, 1.00f), "输入日期或时间是非法的，请重新检查输入数据。");
 				return false;
 			}
 		}
@@ -423,12 +392,12 @@ namespace YimMenu::Submenus
 			ImGui::InputFloat("Z", &value.m_AsFloat[2]);
 			ImGui::PopItemWidth();
 			return true;
-		case sStatData::Type::PACKED:
+			case sStatData::Type::PACKED:
 			ImGui::BeginDisabled();
 			ImGui::TextColored(ImVec4(0.26f, 0.59f, 0.98f, 1.00f), "Please use the packed below to modify the data.");
 			ImGui::EndDisabled();
 			return false;
-		case sStatData::Type::LABEL:
+			case sStatData::Type::LABEL:
 		case sStatData::Type::PROFILESETTING:
 		default:
 			ImGui::BeginDisabled();
@@ -482,121 +451,6 @@ namespace YimMenu::Submenus
 		}
 	}
 
-	void CmpPackedToFlie(int start, int end, packed_vec& packed_vecs, bool compare)
-	{
-		if (!compare)
-		{
-			packed_vecs.clear();
-			packed_vecs.reserve(54850);
-			for (int i = start; i <= end; i++)
-			{
-				auto info = GetPackedStatInfo(i);
-				if (!info.m_IsValid)
-					continue;
-
-				if (info.m_IsBoolStat)
-					packed_vecs.emplace_back(info.m_Index, static_cast<int>(Stats::GetPackedBool(info.m_Index)));
-				else
-					packed_vecs.emplace_back(info.m_Index, Stats::GetPackedInt(info.m_Index));
-			}
-			packed_vecs.shrink_to_fit();
-		}
-		else
-		{
-			if (packed_vecs.size() == 0)
-				return;
-
-			FILE* stream = nullptr;
-			auto file_path = (std::filesystem::path(std::getenv("appdata")) / "YimMenuV2" / "cmp_packed_date.txt").string();
-			if (fopen_s(&stream, file_path.data(), "w+"))
-			{
-				return;
-			}
-			for (const auto& [index, value] : packed_vecs)
-			{
-				auto info = GetPackedStatInfo(index);
-				if (!info.m_IsValid)
-					continue;
-
-				if (info.m_IsBoolStat)
-				{
-					if (static_cast<bool>(value) != Stats::GetPackedBool(index))
-						std::println(stream, "date type?Packed_bool ||index: {:^10} ||Value before the change: {:^10} ||Current value {:^10}", index, static_cast<bool>(value), Stats::GetPackedBool(index));
-				}
-				else
-				{
-					if (value != Stats::GetPackedInt(index))
-						std::println(stream, "date type?Packed_int  ||index: {:^10} ||Value before the change: {:^10} ||Current value {:^10}", index, value, Stats::GetPackedInt(index));
-				}
-			}
-			if (stream)
-				std::fclose(stream);
-		}
-	}
-
-	void CmpStatToFlie(stats_vec& stats_vecs, bool compare)
-	{
-		StatInfo current_info;
-		StatValue read_value;
-		if (!compare)
-		{
-			//Can the name be read directly from the client?
-			std::string filePath = (std::filesystem::path(std::getenv("appdata")) / "YimMenuV2" / "stats.txt").string();
-			std::ifstream file(filePath);
-			if (!file.is_open())
-			{
-				LOG(INFO) << "stats.txt file not found";
-				return;
-			}
-			stats_vecs.clear();
-			stats_vecs.reserve(21460); //all stats 21405
-			std::string line{};
-			std::string oldvalue{};
-			while (std::getline(file, line))
-			{
-				if (line.empty() || line.starts_with("//"))
-					continue;
-
-				size_t pos = line.find(',');
-				if (pos != std::string::npos)
-				{
-					line = line.substr(0, pos);
-				}
-				current_info = GetStatInfo(line);
-				if (current_info.IsValid())
-				{
-					oldvalue = ReadStat(current_info.m_NameHash, read_value, current_info.m_Data);
-					/*if (oldvalue != "")*/
-					stats_vecs.emplace_back(line, oldvalue);
-				}
-			}
-			stats_vecs.shrink_to_fit();
-			file.close();
-		}
-		else
-		{
-			if (stats_vecs.size() == 0)
-				return;
-			FILE* stream = nullptr;
-			auto file_path = (std::filesystem::path(std::getenv("appdata")) / "YimMenuV2" / "cmp_stats_date.txt").string();
-			if (fopen_s(&stream, file_path.data(), "w+"))
-			{
-				return;
-			}
-			std::string newvalue{};
-			for (const auto& [name, oldvalue] : stats_vecs)
-			{
-				current_info = GetStatInfo(name);
-				newvalue = ReadStat(current_info.m_NameHash, read_value, current_info.m_Data);
-				//if (oldvalue != "")
-				if (oldvalue != newvalue)
-					std::println(stream, "data type?[ {:^10} ]||Name:[ {:^10} ] || Value before the change:[ {:^10} ] || Current value[ {:^10} ]", current_info.m_Data->GetTypeString(), name, oldvalue, newvalue);
-			}
-			if (stream)
-				std::fclose(stream);
-		}
-	}
-
 	static bool RenderPackedStatEditor(StatValue& value, const PackedStatInfo& info)
 	{
 		ImGui::SetNextItemWidth(150.f);
@@ -613,19 +467,17 @@ namespace YimMenu::Submenus
 		auto packed = std::make_shared<Group>("Packed");
 		auto packed_range = std::make_shared<Group>("Packed Range");
 		auto from_clipboard = std::make_shared<Group>("From Clipboard");
-		auto packed_compare = std::make_shared<Group>("packed compare");
-		auto stats_compare = std::make_shared<Group>("stats_compare");
 
 		normal->AddItem(std::make_unique<ImGuiItem>([] {
 			if (!NativeInvoker::AreHandlersCached())
 				return ImGui::TextDisabled("Natives not cached yet");
 
 			static StatInfo current_info;
-			static std::string stat_buf{};
+			static char stat_buf[48]{};
 			static StatValue value{};
 
 			ImGui::SetNextItemWidth(300.f);
-			if (ImGui::InputText("Name", &stat_buf, ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank))
+			if (ImGui::InputText("Name", stat_buf, sizeof(stat_buf)))
 			{
 				current_info = GetStatInfo(stat_buf);
 				if (current_info.IsValid())
@@ -640,9 +492,8 @@ namespace YimMenu::Submenus
 			}
 
 			bool can_edit = RenderStatEditor(value, current_info.m_Data);
-			if (can_edit)
-				can_edit = !current_info.m_Data->IsControlledByNetshop();
-
+			can_edit = !current_info.m_Data->IsControlledByNetshop();
+			
 			if (ImGui::Button("Refresh##stat"))
 				ReadStat(current_info.m_NameHash, value, current_info.m_Data);
 			ImGui::SameLine();
@@ -741,65 +592,10 @@ namespace YimMenu::Submenus
 			}
 		}));
 
-
-		packed_compare->AddItem(std::make_unique<ImGuiItem>([] {
-			if (!NativeInvoker::AreHandlersCached())
-				return ImGui::TextDisabled("Natives not cached yet");
-
-			static packed_vec packed_vec_;
-			static bool create_pac_b = false;
-			if (ImGui::Button("Create packed to save"))
-			{
-				FiberPool::Push([] {
-					CmpPackedToFlie(1, 54820, packed_vec_, false);
-					create_pac_b = true;
-				});
-			}
-
-			ImGui::SameLine();
-
-			if (!create_pac_b)
-				return;
-			if (ImGui::Button("Compared to the last time##packed"))
-			{
-				FiberPool::Push([] {
-					CmpPackedToFlie(1, 54820, packed_vec_, true);
-				});
-			}
-		}));
-
-		stats_compare->AddItem(std::make_unique<ImGuiItem>([] {
-			if (!NativeInvoker::AreHandlersCached())
-				return ImGui::TextDisabled("Natives not cached yet");
-
-			static stats_vec stats_vec_;
-			static bool create_stat_b = false;
-
-			if (ImGui::Button("Create stats to save"))
-			{
-				FiberPool::Push([] {
-					CmpStatToFlie(stats_vec_, false);
-					create_stat_b = true;
-				});
-			}
-			ImGui::SameLine();
-
-			if (!create_stat_b)
-				return;
-			if (ImGui::Button("Compared to the last time##stats"))
-			{
-				FiberPool::Push([] {
-					CmpStatToFlie(stats_vec_, true);
-				});
-			}
-		}));
-
 		menu->AddItem(std::move(normal));
 		menu->AddItem(std::move(packed));
 		menu->AddItem(std::move(packed_range));
 		menu->AddItem(std::move(from_clipboard));
-		menu->AddItem(std::move(packed_compare));
-		menu->AddItem(std::move(stats_compare));
 		return menu;
 	}
 }
