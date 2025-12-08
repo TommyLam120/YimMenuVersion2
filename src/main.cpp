@@ -25,7 +25,6 @@
 #include "game/features/vehicle/SavePersonalVehicle.hpp"
 #include "game/features/self/OpenGunLocker.hpp"
 #include "game/features/recovery/DailyActivities.hpp"
-#include "game/backend/CustomLabelText.hpp"
 
 namespace YimMenu
 {
@@ -84,12 +83,10 @@ namespace YimMenu
 		if (!Pointers.LateInit())
 			LOG(WARNING) << "Socialclub patterns failed to load";
 
-		CustomLabelText::Init();
-
 		Notifications::Show("YimMenuV2", "Loaded succesfully", NotificationType::Success);
 
 		if (InWine().value_or(false))
-			LOG(INFO) << "Running in Wine!";
+		    LOG(INFO) << "Running in Wine!";
 
 		while (g_Running)
 		{
