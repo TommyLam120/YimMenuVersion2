@@ -28,7 +28,7 @@ namespace YimMenu::Submenus
 		tools->AddItem(std::make_shared<CommandItem>("callmechanic"_J));
 		tools->AddItem(std::make_shared<CommandItem>("requestpv"_J));
 		tools->AddItem(std::make_shared<CommandItem>("despawnpv"_J));
-		tools->AddItem(std::make_shared<CommandItem>("savepersonalvehicle"_J, "semi detected use in your own risk"));
+		tools->AddItem(std::make_shared<CommandItem>("savepersonalvehicle"_J));
 
 		// Rainbow Paint feature with options
 		misc->AddItem(std::make_shared<BoolCommandItem>("rainbowpaint"_J, "Rainbow Paint"));
@@ -45,7 +45,7 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<BoolCommandItem>("loudsubwoffer"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("lowervehiclestance"_J, "Lower Stance"));
 		misc->AddItem(std::make_shared<BoolCommandItem>("allowhatsinvehicles"_J));
-		misc->AddItem(std::make_shared<BoolCommandItem>("lsccustomsbypass"_J, "semi detected use in your own risk"));
+		misc->AddItem(std::make_shared<BoolCommandItem>("lsccustomsbypass"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("dlcvehicles"_J));
 
 		main->AddItem(globals);
