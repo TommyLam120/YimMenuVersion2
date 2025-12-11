@@ -103,17 +103,23 @@ namespace YimMenu
 		ENTITY_ASSERT_VALID();
 		ENTITY_ASSERT_CONTROL();
 		ENTITY_ASSERT_SCRIPT_CONTEXT();
-
-		auto veh = GetHandle();
-
+		int veh = GetHandle();
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-
-		for (int t = (int)VehicleModType::MOD_SPOILERS; t < (int)VehicleModType::MOD_LIGHTBAR; t++)
-		{
-			VEHICLE::SET_VEHICLE_MOD(veh, t, VEHICLE::GET_NUM_VEHICLE_MODS(veh, t) - 1, false);
+		for (int mod = (int)VehicleModType::MOD_SPOILERS;
+			mod <= (int)VehicleModType::MOD_LIGHTBAR;
+			++mod) {
+			int count = VEHICLE::GET_NUM_VEHICLE_MODS(veh, mod);
+			if (count <= 0)
+			continue;
+			VEHICLE::SET_VEHICLE_MOD(veh, mod, count - 1, false);
 		}
-
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, false);
+		VEHICLE::SET_VEHICLE_FIXED(veh);
+		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
+		int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(veh);
+		ENTITY::SET_ENTITY_HEALTH(veh, maxHealth, 0,0);
+		VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.f);
+		VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true, false);
 	}
 
 	std::string Vehicle::GetPlateText()
