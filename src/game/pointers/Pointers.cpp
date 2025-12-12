@@ -457,12 +457,49 @@ namespace YimMenu
 			GetLabelTextInternal = addr.Add(36).Rip().As<PVOID>();
 		});
 
+		static constexpr auto FrameCountPtrn = Pattern<"8B 15 ? ? ? ? FF C2">("FrameCount");
+		scanner.Add(FrameCountPtrn, [this](PointerCalculator addr) {
+			m_frame_count = addr.Add(2).Rip().As<uint32_t*>();
+		});
+
+		static constexpr auto GameStatePtrn = Pattern<"83 3D ? ? ? ? 05 0F 85">("GameState");
+		scanner.Add(GameStatePtrn, [this](PointerCalculator addr) {
+			m_game_state = addr.Add(2).Rip().As<int*>();
+		});
+
 		if (!scanner.Scan())
 		{
 			LOG(FATAL) << "Some patterns could not be found, unloading.";
 			return false;
 		}
-
+		if (m_frame_count)
+		{
+			LOG(INFO) << "Frame: " << *m_frame_count;
+		}
+		else
+		{
+			LOG(WARNING) << "m_frame_count is NULL!";
+		}
+		if (m_game_state)
+		{
+			//for testing
+			int gs = *m_game_state;
+			const char* name = "Unknown";
+			switch (gs)
+			{
+				case 0: name = "SystemInit"; break;
+				case 1: name = "GameInit"; break;
+				case 2: name = "LoadingSP"; break;
+				case 3: name = "PlayingSP"; break;
+				case 4: name = "LoadingMP"; break;
+				case 5: name = "PlayingMP"; break;
+				}
+			LOG(INFO) << "GameState = " << gs << " (" << name << ")";
+			}
+		    else
+			{
+				LOG(WARNING) << "GameState pointer is NULL!";
+			}
 		PatternCache::Update();
 		return true;
 	}
