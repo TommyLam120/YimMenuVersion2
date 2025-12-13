@@ -55,9 +55,24 @@ namespace YimMenu::Features
 			PLAYER::SET_MAX_WANTED_LEVEL(_WantedSlider.GetState());
 		}
 	};
-
+   class Alwayswanted : public LoopedCommand
+   {
+     using LoopedCommand::LoopedCommand;
+     virtual void OnTick() override
+     {
+       PLAYER::SET_MAX_WANTED_LEVEL(5);
+       Self::GetPlayer().SetWantedLevel(5);
+       PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(PLAYER::PLAYER_ID(), true);
+     } 
+     virtual void OnDisable() override
+     {
+      PLAYER::SET_MAX_WANTED_LEVEL(6);
+      PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
+    }
+  };
 	static ClearWanted _ClearWanted{"clearwanted", "Clear Wanted", "Clears your wanted level"};
 	static SetWanted _SetWanted{"setwanted", "Set Wanted", "Sets your wanted level to the desired level"};
 	static NeverWanted _NeverWanted{"neverwanted", "Never Wanted", "Never gain a wanted level"};
+    static Alwayswanted _alwayswanted{"alwayswanted", "Always Wanted", "Forces the player to always have max wanted level"};
 	static FreezeWanted _FreezeWanted{"freezewanted", "Freeze Wanted", "Freeze your wanted level to the desired level"};
 }
