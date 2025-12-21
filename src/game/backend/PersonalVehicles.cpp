@@ -108,9 +108,10 @@ namespace YimMenu
 		case 26: return 20;
 		case 29: return 50;
 		case 30: return 100; // The Vinewood Club Garage
-		case 33: 		// mansions
-		case 34:             // mansions
-		case 35: return 20; // mansions
+		// mansions
+		case 33:
+		case 34:
+		case 35: return 20;
 		}
 
 		return -1;
@@ -223,6 +224,7 @@ namespace YimMenu
 			case 3: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("MSG_B4"); // Eclipse Blvd Garage B4
 			case 4: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("MSG_B5"); // Eclipse Blvd Garage B5
 			}
+			break;
 		}
 		case 30: // The Vinewood Club Garage
 		{
@@ -235,6 +237,7 @@ namespace YimMenu
 			case 3: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("VPG_B4"); // Basement Level 4
 			case 4: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("VPG_B5"); // Basement Level 5
 			}
+			break;
 		}
 		case 31: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("BO_GARNAME"); // Bail Office
 		case 32: return HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION("HD_GARNAME"); // Garment Factory
@@ -256,12 +259,12 @@ namespace YimMenu
 	{
 		m_Model = m_Data->VehicleModel;
 		m_Plate = m_Data->NumberPlateText;
-		m_Name  = std::format("{} ({})", HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(VEHICLE::GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(m_Model)), m_Plate);
+		m_Name = std::format("{} ({})##{}", HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(VEHICLE::GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(m_Model)), m_Plate, m_Id);
 
 		SetGarage();
 	}
 
-	int PersonalVehicles::PersonalVehicle::GetId()
+	int PersonalVehicles::PersonalVehicle::GetId() const
 	{
 		return m_Id;
 	}
@@ -271,7 +274,7 @@ namespace YimMenu
 		return m_Data;
 	}
 
-	joaat_t PersonalVehicles::PersonalVehicle::GetModel()
+	joaat_t PersonalVehicles::PersonalVehicle::GetModel() const
 	{
 		return m_Model;
 	}
