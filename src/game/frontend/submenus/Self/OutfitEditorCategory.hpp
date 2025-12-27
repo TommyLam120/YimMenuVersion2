@@ -6,6 +6,8 @@
 #include "game/backend/Outfit.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 #include "game/frontend/components/components.hpp"
+#include <game/gta/Natives.hpp>
+#include "game/backend/Self.cpp"
 
 namespace YimMenu::Submenus
 {
