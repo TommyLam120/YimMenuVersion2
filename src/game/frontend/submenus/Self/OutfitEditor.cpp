@@ -1,16 +1,195 @@
 #include "OutfitEditor.hpp"
-
 #include "core/frontend/manager/UIManager.hpp"
 #include "game/backend/Self.hpp"
 #include "game/frontend/items/Items.hpp"
 #include "game/gta/Natives.hpp"
-
 #include <random>
+#include "game/backend/Outfit.hpp"
+#include <nlohmann/json.hpp>
+#include <Windows.h>
+#include <cstdlib>
+#include <string>
 
 // TODO: clean up more AI generated junk from this file
 
 namespace YimMenu
 {
+	struct OutfitComponent
+	{
+		int component;
+		int drawable;
+		int texture;
+		int palette;
+	};
+
+	struct OutfitProp
+	{
+		int prop;
+		int drawable;
+		int texture;
+	};
+
+	struct OutfitData
+	{
+		std::string name;
+		std::vector<OutfitComponent> components;
+		std::vector<OutfitProp> props;
+	};
+	static std::string GetOutfitPath()
+	{
+		const char* appdata = std::getenv("APPDATA");
+		if (!appdata)
+			return "";
+		return std::string(appdata) + "\\YimMenuV2\\Outfits\\";
+	}
+
+	void SaveOutfit(int ped, const std::string& name)
+	{
+		if (ped == 0 || !ENTITY::DOES_ENTITY_EXIST(ped))
+			return;
+
+		std::string safeName = name;
+		safeName.erase(
+		    std::remove_if(
+		        safeName.begin(),
+		        safeName.end(),
+		        [](char c) {
+			        return c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|';
+		        }),
+		    safeName.end());
+
+		if (safeName.empty())
+			return;
+
+		OutfitData outfit{};
+		outfit.name = safeName;
+		for (int i = 0; i < 12; i++)
+		{
+			OutfitComponent c{};
+			c.component = i;
+			c.drawable = PED::GET_PED_DRAWABLE_VARIATION(ped, i);
+			c.texture = PED::GET_PED_TEXTURE_VARIATION(ped, i);
+			c.palette = PED::GET_PED_PALETTE_VARIATION(ped, i);
+			outfit.components.push_back(c);
+		}
+		for (int i = 0; i < 8; i++)
+		{
+			int drawable = PED::GET_PED_PROP_INDEX(ped, i, 0);
+			if (drawable == -1)
+				continue;
+
+			OutfitProp p{};
+			p.prop = i;
+			p.drawable = drawable;
+			p.texture = PED::GET_PED_PROP_TEXTURE_INDEX(ped, i);
+			outfit.props.push_back(p);
+		}
+		json j;
+		j["name"] = outfit.name;
+		j["model"] = ENTITY::GET_ENTITY_MODEL(ped);
+		j["components"] = json::array();
+		j["props"] = json::array();
+
+		for (auto& c : outfit.components)
+		{
+			j["components"].push_back({{"slot", c.component},
+			    {"drawable", c.drawable},
+			    {"texture", c.texture},
+			    {"palette", c.palette}});
+		}
+
+		for (auto& p : outfit.props)
+		{
+			j["props"].push_back({{"slot", p.prop},
+			    {"drawable", p.drawable},
+			    {"texture", p.texture}});
+		}
+		const std::string folder = GetOutfitPath();
+		if (folder.empty())
+			return;
+
+		try
+		{
+			std::filesystem::create_directories(folder);
+
+			std::ofstream file(folder + safeName + ".json", std::ios::trunc);
+			if (!file.is_open())
+				return;
+
+			file << j.dump(4);
+			file.close();
+		}
+		catch (...)
+		{
+			//Can add a log here
+			//LOG(INFO) << "";
+			return;
+		}
+	}
+
+	void LoadOutfit(int ped, const std::string& name)
+	{
+		if (ped == 0 || !ENTITY::DOES_ENTITY_EXIST(ped))
+			return;
+
+		const std::string filePath = GetOutfitPath() + name + ".json";
+
+		std::ifstream file(filePath);
+		if (!file.is_open())
+			return;
+
+		json j;
+		file >> j;
+		file.close();
+
+		if (j.contains("model"))
+		{
+			Hash currentModel = ENTITY::GET_ENTITY_MODEL(ped);
+			Hash savedModel = j["model"].get<Hash>();
+
+			if (currentModel != savedModel)
+				return;
+		}
+
+		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(ped);
+		for (auto& c : j["components"])
+		{
+			PED::SET_PED_COMPONENT_VARIATION(
+			    ped,
+			    c["slot"],
+			    c["drawable"],
+			    c["texture"],
+			    c["palette"]);
+		}
+		for (int i = 0; i < 8; i++)
+			PED::CLEAR_PED_PROP(ped, i, 0);
+
+		for (auto& p : j["props"])
+		{
+			PED::SET_PED_PROP_INDEX(
+			    ped,
+			    p["slot"],
+			    p["drawable"],
+			    p["texture"],
+			    TRUE,
+			    0);
+		}
+	}
+
+	static std::vector<std::string> GetSavedOutfits()
+	{
+		std::vector<std::string> names;
+		const std::string folder = GetOutfitPath();
+
+		for (auto& e : std::filesystem::directory_iterator(folder))
+		{
+			if (e.path().extension() == ".json")
+				names.push_back(e.path().stem().string());
+		}
+
+		return names;
+	}
+
 	int GetMaxDrawable(int slot)
 	{
 		auto ped = Self::GetPed();
@@ -92,6 +271,8 @@ namespace YimMenu
 		category->AddItem(std::make_shared<ImGuiItem>([] {
 			if (!NativeInvoker::AreHandlersCached())
 				return ImGui::TextDisabled("Natives not cached yet");
+
+
 
 			auto ped = Self::GetPed();
 
@@ -230,8 +411,35 @@ namespace YimMenu
 					}
 				}
 			}
-		}));
+			ImGui::Separator();
+			ImGui::Spacing();
 
+			TextUnderlined("Outfit Files");
+			static char outfitName[32] = "default";
+			static std::vector<std::string> outfits = GetSavedOutfits();
+
+			ImGui::InputText("Outfit Name", outfitName, IM_ARRAYSIZE(outfitName));
+
+			if (ImGui::Button("Save Outfit"))
+			{
+				int ped = PLAYER::PLAYER_PED_ID();
+				SaveOutfit(ped, outfitName);
+				outfits = GetSavedOutfits();
+			}
+
+			ImGui::Separator();
+			ImGui::Text("Saved Outfits:");
+
+			for (auto& name : outfits)
+			{
+				if (ImGui::Selectable(name.c_str()))
+				{
+					int ped = PLAYER::PLAYER_PED_ID();
+					LoadOutfit(ped, name);
+				}
+			}
+
+		}));
 		return category;
 	}
 }
