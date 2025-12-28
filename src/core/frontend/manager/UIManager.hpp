@@ -5,6 +5,15 @@
 
 namespace YimMenu
 {
+	inline ImVec4 SidebarBg = {0.06f, 0.06f, 0.08f, 1.00f};
+	inline ImVec4 ItemHoveredBg = {1.00f, 1.00f, 1.00f, 0.08f};
+	inline ImVec4 ItemActiveBg = {0.18f, 0.80f, 0.45f, 0.18f};
+	inline ImVec4 Accent = {0.18f, 0.80f, 0.45f, 1.00f};
+	inline ImVec4 IconActive = {0.18f, 0.80f, 0.45f, 1.00f};
+	inline ImVec4 IconHovered = {0.90f, 0.90f, 0.90f, 1.00f};
+	inline ImVec4 IconIdle = {0.60f, 0.60f, 0.60f, 1.00f};
+
+
 	// Enum to represent different UI themes, append when adding new themes
 	enum class UITheme
 	{
