@@ -13,7 +13,6 @@ namespace YimMenu
 	inline ImVec4 IconHovered = {0.90f, 0.90f, 0.90f, 1.00f};
 	inline ImVec4 IconIdle = {0.60f, 0.60f, 0.60f, 1.00f};
 
-
 	// Enum to represent different UI themes, append when adding new themes
 	enum class UITheme
 	{
