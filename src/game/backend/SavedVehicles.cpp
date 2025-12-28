@@ -8,6 +8,8 @@
 #include "game/backend/SavedVehicles.hpp"
 #include "game/gta/Vehicle.hpp"
 #include "misc/cpp/imgui_stdlib.h"
+#include <core/frontend/manager/Category.hpp>
+#include <game/frontend/items/Items.hpp>
 
 namespace YimMenu::Submenus
 {
