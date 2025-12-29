@@ -4,9 +4,6 @@
 #include "game/backend/Tunables.hpp"
 namespace YimMenu::Features
 {
-//Credit https://github.com/lonelybud/YimMenuV2
-	static std::vector<std::pair<int, const char*>> g_GunVanSlotList;
-	static std::vector<std::pair<int, const char*>> g_GunVanWeaponList;
 	inline constexpr auto allowedGunVanWeapons = std::to_array({"WEAPON_KNIFE",
 	    "WEAPON_NIGHTSTICK",
 	    "WEAPON_HAMMER",
@@ -95,8 +92,9 @@ namespace YimMenu::Features
 	    "WEAPON_FIREWORK",
 	    "WEAPON_BATTLERIFLE",
 	    "WEAPON_SNOWLAUNCHER"});
-
 	inline constexpr auto allowedGunVanSlots = std::to_array({"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+	static std::vector<std::pair<int, const char*>> g_GunVanSlotList{};
+	static std::vector<std::pair<int, const char*>> g_GunVanWeaponList{};
 	inline void SetGunvanWeapon(const char* weapon, int slot)
 	{
 		FiberPool::Push([weapon, slot] {
@@ -105,9 +103,14 @@ namespace YimMenu::Features
 			tun.Set(Joaat(weapon));
 		});
 	}
-
 	static void BuildGunVanLists()
 	{
+		static bool built = false;
+		if (built)
+			return;
+
+		built = true;
+
 		g_GunVanSlotList.clear();
 		g_GunVanWeaponList.clear();
 
@@ -117,16 +120,27 @@ namespace YimMenu::Features
 		for (int i = 0; i < (int)allowedGunVanWeapons.size(); ++i)
 			g_GunVanWeaponList.emplace_back(i, allowedGunVanWeapons[i]);
 	}
-	static bool _GunVanListsBuilt = []() {
+	static auto& GetGunVanSlotList()
+	{
 		BuildGunVanLists();
-		return true;
-	}();
+		return g_GunVanSlotList;
+	}
+
+	static auto& GetGunVanWeaponList()
+	{
+		BuildGunVanLists();
+		return g_GunVanWeaponList;
+	}
+
 	class GunVanSlotCommand : public ListCommand
 	{
 	public:
 		GunVanSlotCommand() :
-		    ListCommand("gunvanslot","Gun Van Slot","Select the gun van slot",
-		        g_GunVanSlotList,
+		    ListCommand(
+		        "gunvanslot",
+		        "Gun Van Slot",
+		        "Select the gun van slot",
+		        GetGunVanSlotList(),
 		        0)
 		{
 		}
@@ -136,8 +150,11 @@ namespace YimMenu::Features
 	{
 	public:
 		GunVanWeaponCommand() :
-		    ListCommand("gunvanweapon","Gun Van Weapon","Select the weapon for the gun van",
-		        g_GunVanWeaponList,
+		    ListCommand(
+		        "gunvanweapon",
+		        "Gun Van Weapon",
+		        "Select the weapon for the gun van",
+		        GetGunVanWeaponList(),
 		        0)
 		{
 		}
@@ -172,4 +189,3 @@ namespace YimMenu::Features
 	    "Set Gun Van Weapon",
 	    "Applies the selected weapon to the selected gun van slot"};
 }
-
