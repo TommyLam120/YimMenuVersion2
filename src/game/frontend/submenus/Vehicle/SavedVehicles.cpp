@@ -12,7 +12,16 @@
 namespace YimMenu::Submenus
 {
 	static BoolCommand spawnInsideSavedVehicle{"spawninsidesavedveh", "Spawn Inside", "Spawn inside the vehicle."};
+	static bool StringContains(const std::string& haystack, const std::string& needle)
+	{
+		return needle.empty() || haystack.find(needle) != std::string::npos;
+	}
 
+	static bool EndsWith(const std::string& str, const char* suffix)
+	{
+		const size_t len = std::strlen(suffix);
+		return str.size() >= len && str.compare(str.size() - len, len, suffix) == 0;
+	}
 	std::shared_ptr<Category> BuildSavedVehiclesMenu()
 	{
 		static std::string folder{}, file{};
@@ -40,14 +49,14 @@ namespace YimMenu::Submenus
 							return;
 						}
 
-						ReplaceString(fileName, ".", ""); // filename say "bob.." will throw relative path error from Folder::GetFile
+						ReplaceString(fileName, ".", "");
 						fileName += ".json";
 
 						SavedVehicles::Save(saveToNewFolder ? newFolder : folder, fileName);
 
 						if (saveToNewFolder)
 						{
-							folder = newFolder; // set current folder to newly created folder
+							folder = newFolder;
 							strcpy(newFolder, "");
 						}
 
@@ -107,19 +116,34 @@ namespace YimMenu::Submenus
 				for (const auto& pair : files)
 				{
 					std::string pair_lower = pair;
-					std::transform(pair_lower.begin(), pair_lower.end(), pair_lower.begin(), tolower);
-					if (pair_lower.contains(search))
+					std::transform(
+					    pair_lower.begin(),
+					    pair_lower.end(),
+					    pair_lower.begin(),
+					    [](unsigned char c) {
+						    return std::tolower(c);
+					    });
+
+					if (!StringContains(pair_lower, search))
+						continue;
+
+					const bool isIni = EndsWith(pair, ".ini");
+					const bool isJson = EndsWith(pair, ".json");
+
+					std::string display =
+					    isIni  ? "[INI]  " + pair :
+					    isJson ? "[JSON] " + pair :
+					             pair;
+
+					if (ImGui::Selectable(display.c_str(), file == pair, ImGuiSelectableFlags_AllowItemOverlap))
 					{
-						auto file_name = pair.c_str();
-						if (ImGui::Selectable(file_name, file == pair, ImGuiSelectableFlags_AllowItemOverlap))
-						{
-							file = pair;
-							open_modal = true;
-						}
+						file = pair;
+						open_modal = true;
 					}
 				}
 				ImGui::EndListBox();
 			}
+
 			ImGui::SameLine();
 			ImGui::BeginGroup();
 			{
