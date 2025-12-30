@@ -51,18 +51,14 @@ namespace YimMenu
 
 		ImVec2 barMin = ImGui::GetWindowPos();
 		ImVec2 barMax = barMin + ImGui::GetWindowSize();
-
-		float startX =
-		    barMin.x + (winW - (bubbleSpacing * submenus.size())) * 0.5f;
+		float startX =barMin.x + (winW - (bubbleSpacing * submenus.size())) * 0.5f;
 
 		for (size_t i = 0; i < submenus.size(); ++i)
 		{
 			auto& submenu = submenus[i];
 			bool isActive = submenu == activeSubmenu;
 
-			ImVec2 bubblePos(
-			    startX + i * bubbleSpacing,
-			    barMin.y + 12.0f);
+			ImVec2 bubblePos(startX + i * bubbleSpacing,barMin.y + 12.0f);
 
 			ImGui::SetCursorScreenPos(bubblePos);
 			ImGui::PushID((int)i);
@@ -77,8 +73,7 @@ namespace YimMenu
 			draw->AddRectFilled(
 			    bubblePos,
 			    bubblePos + ImVec2(bubbleSize, bubbleSize),
-			    ToU32(isActive ? ItemActiveBg : hovered ? ItemHoveredBg :
-			                                              SidebarBg),
+			    ToU32(isActive ? ItemActiveBg : hovered ? ItemHoveredBg :SidebarBg),
 			    rounding);
 
 			if (isActive)
