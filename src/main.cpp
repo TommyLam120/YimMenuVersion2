@@ -25,6 +25,7 @@
 #include "game/features/vehicle/SavePersonalVehicle.hpp"
 #include "game/features/self/OpenGunLocker.hpp"
 #include "game/features/recovery/DailyActivities.hpp"
+#include "core/Update/Updater.hpp"
 
 namespace YimMenu
 {
@@ -79,6 +80,7 @@ namespace YimMenu
 		ScriptPointers::Init();
 
 		GUI::Init();
+		Updater::CheckForUpdates();
 
 		ScriptMgr::AddScript(std::make_unique<Script>(&NativeHooks::RunScript)); // runs once
 		ScriptMgr::AddScript(std::make_unique<Script>(&Tunables::RunScript));    // runs once
