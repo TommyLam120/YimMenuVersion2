@@ -245,7 +245,94 @@ namespace YimMenu::Features
 	    "unlockallcareerprogress",
 	    "Unlock All Career Progress",
 	    "Completes all Career Progress categories"};
+//Reset
+class ResetCareerProgress : public Command
+{
+	using Command::Command;
+
+	virtual void OnCall() override
+	{
+		if (*Pointers.IsSessionStarted)
+		{
+			Stats::SetInt("MPX_PROG_HUB_KNOWAY_EARNINGS", 0);
+			Stats::SetPackedBoolRange(54773, 54786, false);
+			Stats::SetPackedBool(54653, false);
+			Stats::SetInt("MPX_SB_CAR_WASH_OWNED", 0);
+			Stats::SetInt("MPX_SB_HELI_TOURS_OWNED", 0);
+			Stats::SetInt("MPX_SB_WEED_SHOP_OWNED", 0);
+			Stats::SetPackedBoolRange(28313, 28318, false);
+			Stats::SetPackedInt(24928, 0);
+			Stats::SetInt("MPX_PROG_HUB_TYCOON25_EARNINGS", 0);
+			Stats::SetInt("MPX_PROG_HUB_CWASH_SAFEEARNINGS", 0);
+			Stats::SetPackedBoolRange(51278, 51280, false);
+			Stats::SetPackedBoolRange(51285, 51297, false);
+			Stats::SetInt("MPX_PROG_HUB_MFH_EARNINGS", 0);
+			Stats::SetPackedBoolRange(28272, 28287, false);
+			Stats::SetInt("MPX_PROG_HUB_CBR_EARNINGS", 0);
+			Stats::SetInt("MPX_SUM23_AVOP_PROGRESS", 0);
+			Stats::SetInt("MPX_ULP_MISSION_PROGRESS", 0);
+			Stats::SetInt("MPX_YACHT_MISSION_FLOW", 0);
+			Stats::SetPackedBoolRange(41507, 42022, false);
+			Stats::SetInt("MPX_HACKER_DEN_OWNED", 0);
+			Stats::SetPackedBool(9539, false);
+			Stats::SetPackedInt(24903, 0);
+			Stats::SetPackedInt(24904, 0);
+			Stats::SetInt("MPX_PROG_HUB_DEN24_SAFEEARNINGS", 0);
+			Stats::SetInt("MPX_HACKER24_GEN_BS", 0);
+			Stats::SetPackedBool(9549, false);
+			Stats::SetPackedBoolRange(9542, 9546, false);
+			Stats::SetInt("MPX_BAIL_OFFICE_OWNED", 0);
+			Stats::SetPackedBool(9537, false);
+			Stats::SetPackedBool(7639, false);
+			Stats::SetPackedInt(7669, 0);
+			Stats::SetPackedInt(7672, 0);
+			Stats::SetInt("MPX_PROG_HUB_BOUNTY_EARNINGS", 0);
+			Stats::SetPackedInt(7670, 0);
+			Stats::SetPackedInt(7674, 0);
+			Stats::SetPackedInt(7671, 0);
+			Stats::SetInt("MPX_PROG_HUB_BOUNTIES_ALIVE_BS", 0);
+			Stats::SetInt("MPX_BAIL_PROPERTY_EARNINGS", 0);
+			Stats::SetInt("MPX_SALVAGE_YARD_OWNED", 0);
+			Stats::SetPackedBoolRange(42037, 42038, false);
+			Stats::SetPackedBoolRange(42041, 42042, false);
+			Stats::SetPackedBoolRange(42044, 42051, false);
+			Stats::SetInt("MPX_PROG_HUB_SALV23_EARN_SALV", 0);
+			Stats::SetInt("MPX_PROG_HUB_SALV23_EARN_PERF", 0);
+			Stats::SetInt("MPX_PROG_HUB_SALV23_EARN_SELL", 0);
+			Stats::SetInt("MPX_XM22_MISSIONS_SA", 0);
+			Stats::SetInt("MPX_LFETIME_BIKER_BUY_COMPLET6", 0);
+			Stats::SetInt("MPX_XM22_FLOW", 0);
+			Stats::SetInt("MPX_LIFETIME_BKR_SELL_EARNINGS6", 0);
+			Stats::SetInt("MPX_LFETIME_BIKER_SELL_COMPLET6", 0);
+			Stats::SetPackedInt(41241, 0);
+			Stats::SetInt("MPX_PROG_HUB_LSDW_FJ_NO_DEATHS", 0);
+			Stats::SetInt("MPX_PROG_HUB_DAX_CLONE_KILLS", 0);
+			Stats::SetPackedBoolRange(41660, 41670, false);
+			Stats::SetPackedBool(28257, false);
+			Stats::SetInt("MPX_FIXER_COUNT", 0);
+			Stats::SetInt("MPX_FIXER_GENERAL_BS", 0);
+			Stats::SetBool("MPX_AWD_PARTY_NIGHT", false);
+			Stats::SetBool("MPX_AWD_BILLIONAIRE_GAMES", false);
+			Stats::SetBool("MPX_AWD_HOOD_PASS", false);
+			Stats::SetInt("MPX_AWD_COLD_CALLER", 0);
+			Stats::SetInt("MPX_PROG_HUB_FXER_PAY_HIT_BONUS", 0);
+			Stats::SetBool("MPX_AWD_SHORTFRANK_1", false);
+			Stats::SetBool("MPX_AWD_SHORTFRANK_2", false);
+			Stats::SetBool("MPX_AWD_SHORTFRANK_3", false);
+			Stats::SetBool("MPX_AWD_SHORTLAMAR_1", false);
+			Stats::SetBool("MPX_AWD_SHORTLAMAR_2", false);
+			Stats::SetBool("MPX_AWD_SHORTLAMAR_3", false);
+			ScriptMgr::Yield(5000ms);
+			STATS::STAT_SAVE(0, 0, 3, 0);
+		}
+		else
+		{
+			Notifications::Show("YimMenuV2", "You Must be Online", NotificationType::Error);
+		}
+	}
+};
+static ResetCareerProgress _ResetCareerProgress{
+    "resetcareerprogress",
+    "Reset Career Progress",
+    "Might not Reset All challenges"};
 }
-
-
-
