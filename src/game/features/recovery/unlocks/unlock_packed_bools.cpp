@@ -279,8 +279,7 @@ namespace YimMenu::Features
 	};
 	static unlock_packed_bools_ _unlock_packed_bools_{
 	    "unlock_packed_bools",
-	    "unlock packed bools",
-	    "unlock packed bools"};
-
+	    "Unlock packed bools",
+	    "Unlock packed bools"};
 }
 
