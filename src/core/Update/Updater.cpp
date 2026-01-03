@@ -7,7 +7,7 @@
 #include <thread>
 #include <format>
 #pragma comment(lib, "winhttp.lib")
-#define CURRENT_VERSION "YimMenuV2"
+#define CURRENT_VERSION "Csyon'sYimMenuV2"
 #define GITHUB_API L"https://api.github.com/repos/CSY0N/YimMenuVersion2/releases/latest"
 namespace YimMenu::Updater
 {
@@ -144,3 +144,4 @@ namespace YimMenu::Updater
 		}).detach();
 	}
 }
+
