@@ -405,9 +405,9 @@ namespace YimMenu
 			AssistedAimFindNewTarget = ptr.Sub(0x33).As<Functions::AssistedAimFindNewTarget>();
 		});
 
-		constexpr auto gameSkeletonPtrn = Pattern<"0F B6 C0 8D 14 00 83 C2 02">("GameSkeleton");
-		scanner.Add(gameSkeletonPtrn, [this](PointerCalculator ptr) {
-			GameSkeleton = ptr.Add(0x9).Add(3).Rip().As<rage::gameSkeleton*>();
+		static constexpr auto gameSkeletonUpdatePtrn = Pattern<"56 48 83 EC 20 48 8B 81 40 01 00 00 48 85 C0">("GameSkeletonUpdate");
+		scanner.Add(gameSkeletonUpdatePtrn, [this](PointerCalculator addr) {
+			GameSkeletonUpdate = addr.As<PVOID>();
 		});
 
 		constexpr auto anticheatInitializedHashPtrn = Pattern<"89 9E C8 00 00 00 48 8B 0D ? ? ? ? 48 85 C9 74 46">("AnticheatInitializedHash&GetAnticheatInitializedHash");
