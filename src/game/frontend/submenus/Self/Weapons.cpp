@@ -19,6 +19,9 @@ namespace YimMenu::Submenus
 		joaat_t hash;
 	};
 
+	// ------------------------------------------------------------
+	// Weapon stats
+	// ------------------------------------------------------------
 	static void FetchWeaponStats(joaat_t weaponHash, int& kills, int& deaths, float& kd, int& headshots, int& accuracy)
 	{
 		uint64_t garbage[4]{};
@@ -28,11 +31,16 @@ namespace YimMenu::Submenus
 			{
 				thread->m_Context.m_State = rage::scrThread::State::PAUSED;
 
-				static ScriptFunction getWeaponKills("mp_weapons"_J, ScriptPointer("GetWeaponKills", "5D ? ? ? 39 0F 38 00").Add(1).Rip());
-				static ScriptFunction getWeaponDeaths("mp_weapons"_J, ScriptPointer("GetWeaponDeaths", "5D ? ? ? 39 10").Add(1).Rip());
-				static ScriptFunction getWeaponKDRatio("mp_weapons"_J, ScriptPointer("GetWeaponKDRatio", "5D ? ? ? 39 12").Add(1).Rip());
-				static ScriptFunction getWeaponHeadshots("mp_weapons"_J, ScriptPointer("GetWeaponHeadshots", "5D ? ? ? 39 11").Add(1).Rip());
-				static ScriptFunction getWeaponAccuracy("mp_weapons"_J, ScriptPointer("GetWeaponAccuracy", "2D 01 09 00 00"));
+				static ScriptFunction getWeaponKills("mp_weapons"_J,
+					ScriptPointer("GetWeaponKills", "5D ? ? ? 39 0F 38 00").Add(1).Rip());
+				static ScriptFunction getWeaponDeaths("mp_weapons"_J,
+					ScriptPointer("GetWeaponDeaths", "5D ? ? ? 39 10").Add(1).Rip());
+				static ScriptFunction getWeaponKDRatio("mp_weapons"_J,
+					ScriptPointer("GetWeaponKDRatio", "5D ? ? ? 39 12").Add(1).Rip());
+				static ScriptFunction getWeaponHeadshots("mp_weapons"_J,
+					ScriptPointer("GetWeaponHeadshots", "5D ? ? ? 39 11").Add(1).Rip());
+				static ScriptFunction getWeaponAccuracy("mp_weapons"_J,
+					ScriptPointer("GetWeaponAccuracy", "2D 01 09 00 00"));
 
 				kills     = getWeaponKills.Call<int>(weaponHash, -1);
 				deaths    = getWeaponDeaths.Call<int>(weaponHash, -1);
@@ -46,20 +54,27 @@ namespace YimMenu::Submenus
 		}
 	}
 
+	// ------------------------------------------------------------
+	// Ammu-Nation menu
+	// ------------------------------------------------------------
+	static bool weaponsLoaded = false;
+
 	static void RenderAmmuNationMenu()
 	{
 		static std::vector<WeaponDisplay> weaponDisplays;
-		static std::string selectedWeapon{"Select"};
+		static std::string selectedWeapon{ "Select" };
 		static joaat_t selectedWeaponHash{};
-		static char searchWeapon[64];
+		static char searchWeapon[64]{};
 
-		static int kills{};
-		static int deaths{};
+		static int kills{}, deaths{}, headshots{}, accuracy{};
 		static float kdRatio{};
-		static int headshots{};
-		static int accuracy{};
 
-		static bool init = [] {
+		// ---------------- INIT ----------------
+		static bool initialized = false;
+		if (!initialized)
+		{
+			initialized = true;
+
 			FiberPool::Push([] {
 				while (Scripts::IsScriptActive("startup"_J))
 					ScriptMgr::Yield();
@@ -71,91 +86,122 @@ namespace YimMenu::Submenus
 					{
 						thread->m_Context.m_State = rage::scrThread::State::PAUSED;
 
-						for (const auto& weap : g_WeaponHashes)
+						std::vector<WeaponDisplay> tempWeapons;
+						tempWeapons.reserve(g_WeaponHashes.size());
+
+						static ScriptFunction getWeaponNameLabel(
+							"mp_weapons"_J, ScriptPointer("GetWeaponNameLabel", "2D 02 2B 00 00"));
+						static ScriptFunction getWeaponDescLabel(
+							"mp_weapons"_J, ScriptPointer("GetWeaponDescLabel", "2D 02 A0 00 00"));
+
+						for (auto weap : g_WeaponHashes)
 						{
-							static ScriptFunction getWeaponNameLabel("mp_weapons"_J, ScriptPointer("GetWeaponNameLabel", "2D 02 2B 00 00"));
-							static ScriptFunction getWeaponDescLabel("mp_weapons"_J, ScriptPointer("GetWeaponDescLabel", "2D 02 A0 00 00"));
+							std::string name = HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(
+								getWeaponNameLabel.Call<const char*>(weap, false));
+							std::string desc = HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(
+								getWeaponDescLabel.Call<const char*>(weap, false));
 
-							std::string nameGxt = getWeaponNameLabel.Call<const char*>(weap, false); // second arg is for uppercase
-							std::string descGxt = getWeaponDescLabel.Call<const char*>(weap, false);
+							if (name.empty() || name == "NULL" || name == "Invalid")
+								continue;
 
-							std::string nameDisplay = HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(nameGxt.c_str());
-							std::string descDisplay = HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(descGxt.c_str());
-
-							weaponDisplays.push_back({((nameDisplay.empty() || nameDisplay == "NULL" || nameDisplay == "Invalid") ? "" : nameDisplay), ((descDisplay.empty() || descDisplay == "NULL" || descDisplay == "Invalid") ? "" : descDisplay), weap});
+							tempWeapons.push_back({
+								name,
+								(desc == "NULL" || desc == "Invalid") ? "" : desc,
+								weap
+							});
 						}
+
+						weaponDisplays = std::move(tempWeapons);
+						weaponsLoaded = true;
 
 						thread->Kill();
 						thread->m_Context.m_State = rage::scrThread::State::KILLED;
 					}
 				}
 			});
-			return true;
-		}();
-
-		ImGui::BeginCombo("Weapons", selectedWeapon.c_str());
-		if (ImGui::IsItemActive() && !ImGui::IsPopupOpen("##weaponspopup"))
-		{
-			ImGui::OpenPopup("##weaponspopup");
-			memset(searchWeapon, 0, sizeof(searchWeapon));
 		}
-		if (ImGui::BeginPopup("##weaponspopup", ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+
+		// ---------------- LOADING GUARD ----------------
+		if (!weaponsLoaded)
 		{
-			ImGui::Text("Search:");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(250.f);
-			ImGui::InputText("##searchweapon", searchWeapon, sizeof(searchWeapon));
+			ImGui::TextUnformatted("Loading weapons...");
+			return;
+		}
+
+		// ---------------- COMBO ----------------
+		if (ImGui::BeginCombo("Weapons", selectedWeapon.c_str()))
+		{
+			ImGui::InputTextWithHint(
+				"##searchweapon",
+				"Search...",
+				searchWeapon,
+				sizeof(searchWeapon));
 
 			std::string searchLower = searchWeapon;
 			std::transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
+
+			ImGui::Separator();
+
 			for (const auto& weap : weaponDisplays)
 			{
-				if (weap.name.empty())
+				std::string nameLower = weap.name;
+				std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+
+				if (!searchLower.empty() && nameLower.find(searchLower) == std::string::npos)
 					continue;
 
-				std::string weaponLower = weap.name;
-				std::transform(weaponLower.begin(), weaponLower.end(), weaponLower.begin(), ::tolower);
+				bool isSelected = (selectedWeaponHash == weap.hash);
 
-				if (weaponLower.find(searchLower) != std::string::npos)
+				if (ImGui::Selectable(weap.name.c_str(), isSelected))
 				{
-					ImGui::PushID(weap.hash);
-					if (ImGui::Selectable(weap.name.c_str()))
-					{
-						FiberPool::Push([weap] {
-							selectedWeapon = weap.name;
-							selectedWeaponHash = weap.hash;
-							FetchWeaponStats(selectedWeaponHash, kills, deaths, kdRatio, headshots, accuracy);
-						});
-					}
-					ImGui::PopID();
-					if (ImGui::IsItemHovered() && !weap.desc.empty())
-					{
-						ImGui::BeginTooltip();
-						ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35);
-						ImGui::TextUnformatted(weap.desc.c_str());
-						ImGui::PopTextWrapPos();
-						ImGui::EndTooltip();
-					}
+					selectedWeapon = weap.name;
+					selectedWeaponHash = weap.hash;
+
+					FiberPool::Push([] {
+						FetchWeaponStats(
+							selectedWeaponHash,
+							kills,
+							deaths,
+							kdRatio,
+							headshots,
+							accuracy);
+					});
+
+					ImGui::CloseCurrentPopup();
+				}
+
+				if (ImGui::IsItemHovered() && !weap.desc.empty())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.f);
+					ImGui::TextUnformatted(weap.desc.c_str());
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
 				}
 			}
-			ImGui::EndPopup();
+
+			ImGui::EndCombo();
 		}
 
-		if (ImGui::Button("Give Weapon"))
+		// ---------------- BUTTONS ----------------
+		if (ImGui::Button("Give Weapon") && selectedWeaponHash)
 		{
 			FiberPool::Push([] {
 				Self::GetPed().GiveWeapon(selectedWeaponHash, true);
 			});
 		}
+
 		ImGui::SameLine();
-		if (ImGui::Button("Remove Weapon"))
+
+		if (ImGui::Button("Remove Weapon") && selectedWeaponHash)
 		{
 			FiberPool::Push([] {
 				Self::GetPed().RemoveWeapon(selectedWeaponHash);
 			});
 		}
 
-		if (*Pointers.IsSessionStarted && selectedWeaponHash != 0)
+		// ---------------- STATS ----------------
+		if (*Pointers.IsSessionStarted && selectedWeaponHash)
 		{
 			ImGui::Text("Kills With: %d", kills);
 			ImGui::Text("Deaths By: %d", deaths);
