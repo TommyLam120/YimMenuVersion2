@@ -1,3 +1,4 @@
+
 #pragma once
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -170,11 +171,11 @@ namespace YimMenu
 		PVOID MatchmakingSessionDetailSendResponse;
 		PVOID GetLabelText;
 		PVOID GetLabelTextInternal;
-        uint32_t* m_frame_count{};
-        int* m_game_state = nullptr;
-        CGameDataHash* GameDataHash;
-        void** DLCManager;
-        PVOID GetDLCHash;
+		uint32_t* m_frame_count{};
+		int* m_game_state = nullptr;
+		CGameDataHash* GameDataHash;
+		void** DLCManager;
+		PVOID GetDLCHash;
 	};
 
 	struct Pointers : PointerData
