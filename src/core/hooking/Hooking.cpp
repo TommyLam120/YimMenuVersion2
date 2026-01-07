@@ -88,5 +88,4 @@ namespace YimMenu
 		}
 		BaseHook::Hooks().clear();
 	}
-
 }
