@@ -27,7 +27,7 @@ namespace YimMenu::Submenus
 
 		auto generalGroup = std::make_shared<Group>("General");
 		auto gunvanGroup = std::make_shared<Group>("Gun Van");
-		auto businessGroup = std::make_shared<Group>("General");
+		auto businessGroup = std::make_shared<Group>("Business");
 		auto Bailloffice = std::make_shared<Group>("Bail Office");
 		auto Misc_business = std::make_shared<Group>("Misc");
 
