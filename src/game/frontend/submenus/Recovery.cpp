@@ -114,6 +114,7 @@ namespace YimMenu::Submenus
 
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_casino_cd"_J));
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_vehicle_sell_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("Reset_vehicle_Delivery_cd"_J));
 
 		main->AddItem(generalGroup);
 		main->AddItem(gunvanGroup);
