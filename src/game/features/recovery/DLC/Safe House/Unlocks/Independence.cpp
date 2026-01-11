@@ -40,3 +40,4 @@ namespace YimMenu::Features
 	    "Enable Independence DLC",
 	    "Unlock Independence"};
 }
+
