@@ -3,9 +3,39 @@
 #include "core/frontend/Notifications.hpp"
 #include "core/backend/FiberPool.hpp"
 #include "game/gta/Natives.hpp"
+#include "core/util/Joaat.hpp"
 
 namespace YimMenu::Features
 {
+	static BOOL bLocal_1810 = 0;
+	static BOOL bLocal_1813 = 0;
+	inline bool IsXmasWeatherApplied()
+	{
+		return (*ScriptGlobal(2685153).As<uint32_t*>() & (1 << 21)) != 0; // Bit = 21
+	}
+	void Sync_Weather()
+	{
+		if (*ScriptGlobal(4516914).As<int*>())
+		{
+			if (MISC::GET_NEXT_WEATHER_TYPE_HASH_NAME() != Joaat("XMAS"))
+			{
+				if (!IsXmasWeatherApplied())
+				{
+					MISC::SET_OVERRIDE_WEATHER("XMAS");
+					bLocal_1810 = true;
+					bLocal_1813 = true;
+				}
+			}
+		}
+		else
+		{
+			if (MISC::GET_NEXT_WEATHER_TYPE_HASH_NAME() == Joaat("XMAS"))
+				MISC::CLEAR_OVERRIDE_WEATHER();
+			bLocal_1810= false;
+			bLocal_1813 = false;
+		}
+		//can add SNOW_FOOTSTEPS if want to
+	}
 	class EnableChristmasDLC : public Command
 	{
 		using Command::Command;
@@ -30,6 +60,7 @@ namespace YimMenu::Features
 					*ScriptGlobal(262145).At(22797).As<int*>() = 1; // Xmas 2017 Masks
 					*ScriptGlobal(262145).At(22798).As<int*>() = 1; // Xmas 2017 Clothing
 					*ScriptGlobal(262145).At(25592).As<int*>() = 1; // Xmas 2018 Clothing
+					Sync_Weather();                                 //Local
 				});
 			}
 			else
