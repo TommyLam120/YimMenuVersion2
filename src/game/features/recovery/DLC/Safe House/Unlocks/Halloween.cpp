@@ -37,3 +37,4 @@ namespace YimMenu::Features
 	    "Enable Halloween DLC",
 	    "Unlock Halloween"};
 }
+
