@@ -56,7 +56,7 @@ jobs:
           name: binary
           path: |
             build/Yimura.Menu.Enhanced.dll
-            build/YimMenuV2.pdb
+            build/Yimura.Menu.Enhanced.pdb
 
       - name: Generate Build Info
         id: var
