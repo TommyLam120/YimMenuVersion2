@@ -1,8 +1,6 @@
 
-
 #pragma once
 #include <d3d11.h>
-#include "Matchmaking/MatchmakingFindSessions.cpp"
 
 class CNetworkPlayerMgr;
 class CNetGamePlayer;
@@ -63,8 +61,6 @@ namespace YimMenu::Hooks
 		extern bool MatchmakingUpdate(int profile_index, MatchmakingId* id, int num_slots, int available_slots, rage::rlSessionInfo* info, MatchmakingAttributes* data, rage::rlTaskStatus* status);
 		extern bool MatchmakingUnadvertise(int profile_index, MatchmakingId* id, rage::rlTaskStatus* status);
 		extern bool MatchmakingSessionDetailSendResponse(rage::netConnectionManager* mgr, void* request_frame, rage::rlSessionDetailMsg* msg);
-		extern bool MatchmakingFindSessions(int profile_index, int available_slots, NetworkGameFilterMatchmakingComponent* m_filter, unsigned int max_sessions, rage::rlSessionInfo* result_sessions, int* result_session_count, rage::rlTaskStatus* state);
-		extern bool MatchmakingFindSessionsResponse(void* _this, void* unused, rage::JSONNode* node, int* unk);
 	}
 
 	namespace Info
@@ -110,5 +106,3 @@ namespace YimMenu::Hooks
 		extern const char* GetLabelTextInternal(void* this_, uint32_t label_hash);
 	}
 }
-
-
