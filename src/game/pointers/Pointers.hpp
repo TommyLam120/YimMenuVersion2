@@ -46,7 +46,6 @@ class CNetworkSession;
 class CStatsMpCharacterMappingData;
 class CAnticheatContext;
 class CGameDataHash;
-class NetworkGameFilterMatchmakingComponent;
 
 namespace YimMenu
 {
@@ -72,7 +71,6 @@ namespace YimMenu
 		using GetPresenceAttributes = bool (*)(int profile_index, rage::rlScGamerHandle* handles, int num_handles, rage::rlQueryPresenceAttributesContext** contexts, int count, rage::rlScTaskStatus* state);
 		using GetAvatars = bool (*)(rage::rlGetAvatarsContext* context, rage::rlGetAvatarsPlayerList* players);
 		using AssistedAimFindNewTarget = bool (*)(__int64 a1);
-		using EncodeSessionInfo = bool (*)(rage::rlSessionInfo* info, char* buffer, int buffer_size, int* bytes_written);
 	}
 
 	struct PointerData
@@ -178,9 +176,6 @@ namespace YimMenu
 		CGameDataHash* GameDataHash;
 		void** DLCManager;
 		PVOID GetDLCHash;
-		PVOID MatchmakingFindSessions;
-		PVOID MatchmakingFindSessionsResponse;
-		Functions::EncodeSessionInfo EncodeSessionInfo;
 	};
 
 	struct Pointers : PointerData
