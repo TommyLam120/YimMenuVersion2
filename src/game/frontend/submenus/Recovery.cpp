@@ -98,7 +98,8 @@ namespace YimMenu::Submenus
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlock_misc"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("all_Collectibles"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Unlock_Gunrunning"_J));
-
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlockalltradeprices"_J));
+		
 		skip->AddItem(std::make_shared<CommandItem>("SkipDrDreeContract"_J));
 		skip->AddItem(std::make_shared<CommandItem>("SkipJenetteTheMutette"_J));
 		skip->AddItem(std::make_shared<CommandItem>("SkipCluckinBellRaid"_J));
