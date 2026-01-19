@@ -103,5 +103,22 @@ namespace YimMenu::Features
 	    "bailsecure_mw",
 	    "Secure Most Wanted",
 	    "Bail Office"};
+
+	class SkipOfficeDialogues : public Command
+	{
+		using Command::Command;
+
+		void OnCall() override
+		{
+			FiberPool::Push([] {
+				Stats::SetPackedBool(51190, true);//Introduction
+			});
+		}
+	};
+
+	static SkipOfficeDialogues _SkipOfficeDialogues{
+	    "Skip_Office_Dialogues",
+	    "Skip Bail Office Dialogues",
+	    "Skip Bail Office Dialogues"};
 }
 
