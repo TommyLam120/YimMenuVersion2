@@ -48,51 +48,49 @@ namespace YimMenu
 	}
 	bool PatternScanner::ScanInternal(const IPattern* pattern, PatternFunc func) const
 	{
-		const auto signature = pattern->Signature();
-
-		if (PatternCache::IsInitialized())
+	const auto signature = pattern->Signature();
+	if (PatternCache::IsInitialized())
+	{
+		auto offset = PatternCache::GetCachedOffset(pattern->Hash().Update(m_Module->Size()));
+		if (offset.has_value())
 		{
-			auto offset = PatternCache::GetCachedOffset(pattern->Hash().Update(m_Module->Size()));
-			if (offset.has_value())
-			{
-				LOG(INFO) << "Using cached pattern: [" << pattern->Name() << "]";
-				std::invoke(func, m_Module->Base() + offset.value());
-				return true;
-			}
+			LOG(INFO) << "Using cached pattern: [" << pattern->Name() << "]";
+			std::invoke(func, m_Module->Base() + offset.value());
+			g_found_sig_count++;
+			return true;
 		}
-		for (auto i = m_Module->Base(); i < m_Module->End(); ++i)
-		{
-			if (signature.size() + i > m_Module->End())
-				break;
-
-			const auto instruction = reinterpret_cast<std::uint8_t*>(i);
-			bool found = true;
-
-			for (std::size_t instructionIdx = 0; instructionIdx < signature.size(); ++instructionIdx)
-			{
-				if (signature[instructionIdx] && signature[instructionIdx].value() != instruction[instructionIdx])
-				{
-					found = false;
-					break;
-				}
-			}
-
-			if (found)
-			{
-				LOG(INFO) << "Pattern found: [" << pattern->Name() << "]";
-				std::invoke(func, i);
-
-				if (PatternCache::IsInitialized())
-				{
-					PatternCache::UpdateCachedOffset(pattern->Hash().Update(m_Module->Size()), i - m_Module->Base());
-				}
-
-				return true;
-			}
-		}
-
-		LOG(WARNING) << "Failed to find pattern: [" << pattern->Name() << "]";
-		return false;
 	}
+	for (auto i = m_Module->Base(); i < m_Module->End(); ++i)
+	{
+		if (signature.size() + i > m_Module->End())
+			break;
 
+		const auto instruction = reinterpret_cast<std::uint8_t*>(i);
+		bool found = true;
+
+		for (std::size_t instructionIdx = 0; instructionIdx < signature.size(); ++instructionIdx)
+		{
+			if (signature[instructionIdx] && signature[instructionIdx].value() != instruction[instructionIdx])
+			{
+				found = false;
+				break;
+			}
+		}
+
+		if (found)
+		{
+			LOG(INFO) << "Pattern found: [" << pattern->Name() << "]";
+			std::invoke(func, i);
+			g_found_sig_count++;
+			if (PatternCache::IsInitialized())
+			{
+				PatternCache::UpdateCachedOffset(pattern->Hash().Update(m_Module->Size()), i - m_Module->Base());
+			}
+			return true;
+		}
+	}
+	g_failed_sig_count++;
+	LOG(WARNING) << "Failed to find pattern: [" << pattern->Name() << "]";
+	return false;
+	}
 }
