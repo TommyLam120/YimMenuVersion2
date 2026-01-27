@@ -354,7 +354,11 @@ namespace YimMenu
 			}
 
 			ImGui::Columns(1);
-
+			if (ImGui::Button("Add Rockstar logo"))
+			{
+				PED::ADD_PED_DECORATION_FROM_HASHES(PLAYER::PLAYER_PED_ID(), -1398869298, -1730534702);
+			}
+			ImGui::SameLine();
 			if (ImGui::Button("Randomize Outfit"))
 			{
 				std::random_device rd;
