@@ -7,60 +7,95 @@ namespace YimMenu::Features
 	{
 		using LoopedCommand::LoopedCommand;
 
-		// Config values (easy to tweak)
+		// Swim multipliers
 		static constexpr float NORMAL_SWIM = 1.0f;
-		static constexpr float FAST_SWIM = 2.5f; // 2.0f – 2.8f ? smooth and >3.0f ? animation glitches
-		static constexpr float FAST_DIVE = -3.0f; // Downward force | -2.0f ? realistic dive and -4.0f ? dolphin-style dive ??
+		static constexpr float FAST_SWIM   = 3.0f;
+
+		// Vertical swim speeds
+		static constexpr float DIVE_SPEED  = -6.0f; // Down
+		static constexpr float RISE_SPEED  =  4.0f; // Up
 
 		virtual void OnTick() override
 		{
-			Ped ped = PLAYER::PLAYER_PED_ID();
 			Player player = PLAYER::PLAYER_ID();
+			Ped ped = PLAYER::PLAYER_PED_ID();
 
+			// Safety checks
+			if (!ENTITY::DOES_ENTITY_EXIST(ped) ||
+			    PED::IS_PED_IN_ANY_VEHICLE(ped, false) ||
+			    PED::IS_PED_RAGDOLL(ped))
+			{
+				return;
+			}
+
+			// Not swimming → reset multiplier
 			if (!PED::IS_PED_SWIMMING(ped))
 			{
 				PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, NORMAL_SWIM);
 				return;
 			}
 
-			// Sprint = Fast Swim
-			if (PAD::IS_CONTROL_PRESSED(0, 21)) // Sprint (SHIFT / A)
+			// Sprint (Shift)
+			bool sprintPressed =
+			    PAD::IS_CONTROL_PRESSED(0, 21) ||
+			    PAD::IS_DISABLED_CONTROL_PRESSED(0, 21);
+
+			PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(
+			    player,
+			    sprintPressed ? FAST_SWIM : NORMAL_SWIM);
+
+			// Only dive/rise underwater
+			if (!PED::IS_PED_SWIMMING_UNDER_WATER(ped))
+				return;
+
+			// Controls
+			bool forwardPressed =
+			    PAD::IS_CONTROL_PRESSED(0, 32) ||
+			    PAD::IS_DISABLED_CONTROL_PRESSED(0, 32); // W
+
+			bool divePressed =
+			    PAD::IS_CONTROL_PRESSED(0, 36) ||
+			    PAD::IS_DISABLED_CONTROL_PRESSED(0, 36); // CTRL
+
+			bool risePressed =
+			    PAD::IS_CONTROL_PRESSED(0, 22) ||
+			    PAD::IS_DISABLED_CONTROL_PRESSED(0, 22); // SPACE
+
+			if (!forwardPressed)
+				return;
+
+			Vector3 velocity = ENTITY::GET_ENTITY_VELOCITY(ped);
+
+			// Dive down
+			if (divePressed)
 			{
-				PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, FAST_SWIM);
+				velocity.z = DIVE_SPEED;
 			}
-			else
+			// Rise up
+			else if (risePressed)
 			{
-				PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, NORMAL_SWIM);
+				velocity.z = RISE_SPEED;
 			}
 
-			// Dive faster when looking down / underwater
-			if (PED::IS_PED_SWIMMING_UNDER_WATER(ped) && PAD::IS_CONTROL_PRESSED(0, 32)) // Move Forward (W / LS Up)
-			{
-				ENTITY::APPLY_FORCE_TO_ENTITY(
-				    ped,
-				    1,
-				    0.0f,
-				    0.0f,
-				    FAST_DIVE,
-				    0.0f,
-				    0.0f,
-				    0.0f,
-				    0,
-				    false,
-				    true,
-				    true,
-				    false,
-				    true);
-			}
+			ENTITY::SET_ENTITY_VELOCITY(
+			    ped,
+			    velocity.x,
+			    velocity.y,
+			    velocity.z);
 		}
 
 		virtual void OnDisable() override
 		{
+			// Reset swim speed on disable
 			PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(
 			    PLAYER::PLAYER_ID(),
 			    NORMAL_SWIM);
 		}
 	};
 
-	static FastDive _FastDive{"fastdive", "Fast Dive", "Swim faster with sprint and dive quicker underwater"};
+	static FastDive _FastDive{
+	    "fastdive",
+	    "Fast Dive",
+	    "Sprint = faster swimming | CTRL = dive | SPACE = rise"
+	};
 }

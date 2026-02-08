@@ -171,19 +171,24 @@ namespace YimMenu::Submenus
 	{
 		auto main = std::make_shared<Category>("Main");
 		auto miscGroup = std::make_shared<Group>("Misc");
+		auto teleports = std::make_shared<Category>("Teleports");
+		auto teleportsGroup = std::make_shared<Group>("Teleport");
 
 		miscGroup->AddItem(std::make_shared<ConditionalItem>("autotptowaypoint"_J, std::make_shared<CommandItem>("tptowaypoint"_J), true));
 		miscGroup->AddItem(std::make_shared<BoolCommandItem>("autotptowaypoint"_J));
 		miscGroup->AddItem(std::make_shared<CommandItem>("tptoobjective"_J));
 
 		main->AddItem(miscGroup);
+		teleports->AddItem(teleportsGroup);
+
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpforward"_J));
 
 		auto customteleport = std::make_shared<Category>("Saved");
 		customteleport->AddItem(std::make_shared<ImGuiItem>([] {
 			RenderCustomTeleport();
 		}));
 
-
+		AddCategory(std::move(teleports));
 		AddCategory(std::move(main));
 		AddCategory(std::move(customteleport));
 	}
