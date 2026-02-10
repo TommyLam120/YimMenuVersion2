@@ -7,7 +7,6 @@
 ![Language](https://img.shields.io/badge/language-C%2B%2B-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
----
 
 ## 📌 Overview
 
@@ -17,7 +16,6 @@ It provides powerful features, stability improvements, and an extensible archite
 > ⚠️ **Disclaimer:** This project is for educational and research purposes only.  
 > Using mod menus in online sessions may violate Rockstar's Terms of Service.
 
----
 
 ## 📥 Installation Guide
 
@@ -27,7 +25,6 @@ It provides powerful features, stability improvements, and an extensible archite
 - DLL Injector (e.g., Xenos)
 - Optional but recommended: **FSL**
 
----
 
 ### 📝 Step-by-Step Setup
 
@@ -55,7 +52,6 @@ It provides powerful features, stability improvements, and an extensible archite
    - Stay at the **main menu**
    - Inject **YimMenuV2.dll**
 
----
 
 ## 🎮 Controls
 
@@ -63,11 +59,9 @@ It provides powerful features, stability improvements, and an extensible archite
 |--------|------|
 | Open Menu | `INSERT` or `CTRL + \` |
 
----
 
 ## ❗ Common Issues & Fixes
 
----
 
 ### 🔄 Desync Every 5 Minutes
 
@@ -79,7 +73,6 @@ It provides powerful features, stability improvements, and an extensible archite
 - Use **invite-only / private sessions**
 - Use a **proper BattlEye bypass** (not provided)
 
----
 
 ### 💾 Progress Disappeared After Removing FSL
 
@@ -92,7 +85,6 @@ FSL stores account data locally. Removing it hides those saves.
 - Keep **FSL enabled**
 - Or avoid using FSL entirely *(not recommended)*
 
----
 
 ### ❌ Game Won't Start After Removing FSL
 
