@@ -25,7 +25,7 @@ It provides powerful features, stability improvements, and an extensible archite
 
 - GTA V: Enhanced Edition
 - DLL Injector (e.g., Xenos)
-- Optional but recommended: **FSL (Fake Social Club Local saves)**
+- Optional but recommended: **FSL**
 
 ---
 
