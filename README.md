@@ -1,29 +1,102 @@
-# YimMenuV2
+# 🚀 YimMenuV2
 
-Experimental menu for GTA 5: Enhanced
+**Experimental mod menu for GTA 5: Enhanced**
 
-## How to use
+![Status](https://img.shields.io/badge/status-experimental-orange)
+![Platform](https://img.shields.io/badge/platform-GTA%20V%20Enhanced-blue)
+![Language](https://img.shields.io/badge/language-C%2B%2B-red)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-1. Download the latest version of FSL from [here](https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html) and place version.dll in your GTA V directory. Using FSL is now optional but highly recommended for account safety
-2. Download YimMenuV2 from [GitHub Releases](https://github.com/CSY0N/YimMenuVersion2/releases)
-3. Download an injector, such as [Xenos](https://www.unknowncheats.me/forum/general-programming-and-reversing/124013-xenos-injector-v2-3-2-a.html)
-4. Open Rockstar Launcher, select Grand Theft Auto V Enhanced, go to settings, and disable BattlEye. If you are using Steam or Epic Games, you may have to pass the -nobattleye command line parameter as well
-5. Launch GTA V, then use your injector to inject YimMenuV2.dll at the main menu
+---
 
-## How to open the menu?
+## 📌 Overview
 
-Press the `INSERT` key or `Ctrl+\` to open the menu
- 
-## Common issues
+**YimMenuV2** is an experimental mod menu for **Grand Theft Auto V: Enhanced Edition**, built as a modern successor to the original YimMenu.  
+It provides powerful features, stability improvements, and an extensible architecture for future development.
 
-### I keep getting desynced from public sessions every five minutes
+> ⚠️ **Disclaimer:** This project is for educational and research purposes only.  
+> Using mod menus in online sessions may violate Rockstar's Terms of Service.
 
-We currently do not have a BattlEye bypass, and legitimate hosts will eventually remove you due to a heartbeat failure. There is currently no way to stop this other than using an actual (private) bypass
+---
 
-### I removed FSL and all my progress disappeared!
+## 📥 Installation Guide
 
-FSL reroutes account save data to disk, so any progress made with FSL will only show up if you have FSL enabled. If you don't want this, you can also use YimMenuV2 without FSL, but this is not recommended
+### 🔧 Requirements
 
-### I removed FSL and the game doesn't start up anymore
+- GTA V: Enhanced Edition
+- DLL Injector (e.g., Xenos)
+- Optional but recommended: **FSL (Fake Social Club Local saves)**
 
-This is a known issue; delete "Documents/GTAV Enhanced/Profiles" to fix
+---
+
+### 📝 Step-by-Step Setup
+
+1. **Download FSL (Recommended)**  
+   👉 [Download Here](https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html)  
+   - Place `version.dll` inside your **GTA V root directory**  
+   - Using FSL improves **account safety**
+
+2. **Download YimMenuV2**  
+   👉 [GitHub Releases](https://github.com/CSY0N/YimMenuVersion2/releases)
+
+3. **Download a DLL Injector**  
+   Recommended: [Xenos Injector](https://www.unknowncheats.me/forum/general-programming-and-reversing/124013-xenos-injector-v2-3-2-a.html)
+
+4. **Disable BattlEye**
+   - Open **Rockstar Launcher**
+   - Select **GTA V Enhanced**
+   - Go to **Settings → Disable BattlEye**
+   - Steam / Epic users may need:
+     ```
+     -nobattleye
+     ```
+
+5. **Launch GTA V**
+   - Stay at the **main menu**
+   - Inject **YimMenuV2.dll**
+
+---
+
+## 🎮 Controls
+
+| Action | Key |
+|--------|------|
+| Open Menu | `INSERT` or `CTRL + \` |
+
+---
+
+## ❗ Common Issues & Fixes
+
+---
+
+### 🔄 Desync Every 5 Minutes
+
+> **Problem:** Getting kicked or desynced from public sessions.
+
+**Cause:** No current BattlEye bypass — legitimate hosts detect heartbeat failure.
+
+**Solution:**  
+- Use **invite-only / private sessions**
+- Use a **proper BattlEye bypass** (not provided)
+
+---
+
+### 💾 Progress Disappeared After Removing FSL
+
+> **Problem:** Progress is missing after removing FSL.
+
+**Explanation:**  
+FSL stores account data locally. Removing it hides those saves.
+
+**Fix Options:**
+- Keep **FSL enabled**
+- Or avoid using FSL entirely *(not recommended)*
+
+---
+
+### ❌ Game Won't Start After Removing FSL
+
+> **Problem:** GTA crashes or won't launch.
+
+**Fix:**  
+Delete this folder:
