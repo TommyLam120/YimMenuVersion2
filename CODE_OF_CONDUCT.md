@@ -6,7 +6,6 @@ In the interest of fostering an open and welcoming environment, we as contributo
 
 As a rule of thumb, **any comment or behavior that is not relevant to the project or its contributions is prohibited**.
 
----
 
 ## Our Standards
 
@@ -32,7 +31,6 @@ Examples of **unacceptable behavior** include:
 - Attempting to recruit contributors for unrelated projects
 - Any conduct which could reasonably be considered inappropriate in a professional environment
 
----
 
 ## Our Responsibilities
 
@@ -42,7 +40,6 @@ Project maintainers have the **right and responsibility** to remove, edit, or re
 
 They may also temporarily or permanently ban **any contributor** for behavior they deem inappropriate, threatening, offensive, abusive, or harmful to the community.
 
----
 
 ## Scope
 
@@ -53,7 +50,6 @@ This Code of Conduct applies to **all project spaces**, including:
 
 This Code of Conduct **does not apply to the actual menu codebase itself**, but rather to community interaction, collaboration, and contribution environments.
 
----
 
 ## Enforcement
 
@@ -61,7 +57,6 @@ Instances of abusive, harassing, or otherwise unacceptable behavior should be re
 
 All comments, issues, pull requests, or contributions violating this Code of Conduct will be **swiftly removed**, and users may be **muted, kicked, or permanently banned** if they show no intention of contributing respectfully.
 
----
 
 ## Why Have a Code of Conduct?
 
@@ -76,7 +71,6 @@ These groups tend to drive away contributors and slow development by engaging in
 
 This Code of Conduct exists to ensure such individuals are removed **before they can negatively impact the project**. This is a matter of **basic decency**, not ideology. If you feel that being prohibited from harassment or slurs is an unreasonable restriction, then this community is simply not the right fit for you.
 
----
 
 ## Attribution
 
