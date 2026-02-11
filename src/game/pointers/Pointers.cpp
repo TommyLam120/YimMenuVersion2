@@ -484,9 +484,9 @@ namespace YimMenu
 			m_frame_count = addr.Add(2).Rip().As<uint32_t*>();
 		});
 
-		static constexpr auto GameStatePtrn = Pattern<"83 3D ? ? ? ? 05 0F 85">("GameState");
+		static constexpr auto GameStatePtrn = Pattern<"83 3D ? ? ? ? ? 0F 85 ? ? ? ? BA ? 00">("GameState");
 		scanner.Add(GameStatePtrn, [this](PointerCalculator addr) {
-			m_game_state = addr.Add(2).Rip().As<int*>();
+			m_game_state = addr.Add(2).Rip().Add(1).As<eGameState*>();
 		});
 
 		constexpr auto gameDataHashPtrn = Pattern<"48 8D 3D ? ? ? ? 69 C9">("GameDataHash");
@@ -514,21 +514,13 @@ namespace YimMenu
 		{
 			LOG(WARNING) << "m_frame_count is NULL!";
 		}
-		if (m_game_state)
+		if (*m_game_state != eGameState::Finished)
 		{
-			//for testing
-			int gs = *m_game_state;
-			const char* name = "Unknown";
-			switch (gs)
+			LOG(INFO) << "Waiting GameState";
+			while (*m_game_state != eGameState::Finished)
 			{
-			case 0: name = "SystemInit"; break;
-			case 1: name = "GameInit"; break;
-			case 2: name = "LoadingSP"; break;
-			case 3: name = "PlayingSP"; break;
-			case 4: name = "LoadingMP"; break;
-			case 5: name = "PlayingMP"; break;
+				std::this_thread::sleep_for(1000ms);
 			}
-			LOG(INFO) << "GameState = " << gs << " (" << name << ")";
 		}
 		else
 		{
