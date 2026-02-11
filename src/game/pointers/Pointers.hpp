@@ -6,7 +6,7 @@
 #include "types/script/scrNativeHandler.hpp"
 #include "types/rage/ObfVar.hpp"
 #include "core/memory/BytePatches.hpp"
-
+#include "types/player/CPlayerInfo.hpp"
 namespace rage
 {
 	template<typename T>
@@ -172,7 +172,7 @@ namespace YimMenu
 		PVOID GetLabelText;
 		PVOID GetLabelTextInternal;
 		uint32_t* m_frame_count{};
-		int* m_game_state = nullptr;
+		eGameState* m_game_state{};
 		CGameDataHash* GameDataHash;
 		void** DLCManager;
 		PVOID GetDLCHash;
