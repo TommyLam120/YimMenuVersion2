@@ -3,64 +3,146 @@
 
 namespace YimMenu
 {
-
-	bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
+	static bool ParseColorFromClipboard(ImVec4& out)
 	{
-		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		if (!window || window->SkipItems)
-			return false;
-		ImGuiIO& io = ImGui::GetIO();
-		ImDrawList* draw = window->DrawList;
-		ImVec2 pos = ImGui::GetCursorScreenPos();
-		ImVec2 size(radius * 2.f, radius * 2.f);
-		ImVec2 center = pos + ImVec2(radius, radius);
-		ImGui::InvisibleButton(id, size);
-		bool active = ImGui::IsItemActive();
-		bool hovered = ImGui::IsItemHovered();
-		float h, s, v;
-		ImGui::ColorConvertRGBtoHSV(color.x, color.y, color.z, h, s, v);
-		bool changed = false;
-		const int segments = 240;
-		for (int i = 0; i < segments; ++i)
+		const char* clip = ImGui::GetClipboardText();
+		if (!clip || !clip[0])
+			 return false;
+		 float r, g, b, a = 1.0f;
+		if (sscanf_s(clip, "%f , %f , %f , %f", &r, &g, &b, &a) == 4 ||
+			 sscanf_s(clip, "%f,%f,%f,%f", &r, &g, &b, &a) == 4)
 		{
-			float a0 = (i / (float)segments) * IM_PI * 2.f;
-			float a1 = ((i + 1) / (float)segments) * IM_PI * 2.f;
-			ImVec2 p0 = center + ImVec2(cosf(a0), sinf(a0)) * radius;
-			ImVec2 p1 = center + ImVec2(cosf(a1), sinf(a1)) * radius;
-			ImU32 col0 = ImColor::HSV(i / (float)segments, 1.f, 1.f);
-			ImU32 col1 = ImColor::HSV((i + 1) / (float)segments, 1.f, 1.f);
-			draw->AddTriangleFilled(center, p0, p1, col0);
+			out = ImVec4(r, g, b, a);
+			return true;
 		}
-		draw->AddCircleFilled(center, radius, IM_COL32(255, 255, 255, 35), segments);
-		draw->AddCircle(center, radius + 2.f, IM_COL32(255, 255, 255, hovered ? 40 : 20), segments, 2.5f);
-		if (active)
+		if (sscanf_s(clip, "%f , %f , %f", &r, &g, &b) == 3 ||
+			 sscanf_s(clip, "%f,%f,%f", &r, &g, &b) == 3)
 		{
-			ImVec2 delta = io.MousePos - center;
-			float dist = sqrtf(delta.x * delta.x + delta.y * delta.y);
-
-			if (dist <= radius)
-			{
-				float angle = atan2f(delta.y, delta.x);
-				if (angle < 0.f)
-					angle += IM_PI * 2.f;
-
-				h = angle / (IM_PI * 2.f);
-				s = ImClamp(dist / radius, 0.f, 1.f);
-				v = 1.f;
-
-				changed = true;
-			}
+			 out = ImVec4(r, g, b, 1.0f);
+			 return true;
 		}
-		float handle_angle = h * IM_PI * 2.f;
-		float handle_radius = s * radius;
-		ImVec2 handle_pos = center + ImVec2(cosf(handle_angle) * handle_radius, sinf(handle_angle) * handle_radius);
-		draw->AddCircleFilled(handle_pos + ImVec2(1, 1), 7.f, IM_COL32(0, 0, 0, 120));
-		draw->AddCircleFilled(handle_pos, 6.f, IM_COL32(255, 255, 255, 230));
-		draw->AddCircle(handle_pos, 6.f, IM_COL32(0, 0, 0, 160), 0, 1.5f);
-		if (changed)
-			ImGui::ColorConvertHSVtoRGB(h, s, v, color.x, color.y, color.z);
-		return changed;
-	}
+		if (clip[0] == '#') {
+			 unsigned int hex = 0;
+			  if (sscanf_s(clip + 1, "%x", &hex) == 1)  {
+				  if (strlen(clip) == 7) {
+					   out.x = ((hex >> 16) & 0xFF) / 255.f;
+					   out.y = ((hex >> 8) & 0xFF) / 255.f;
+					    out.z = (hex & 0xFF) / 255.f;
+						out.w = 1.0f;
+						 return true;
+		            }
+			else if (strlen(clip) == 9)  {
+				out.x = ((hex >> 24) & 0xFF) / 255.f;
+				out.y = ((hex >> 16) & 0xFF) / 255.f;
+				out.z = ((hex >> 8) & 0xFF) / 255.f;
+				out.w = (hex & 0xFF) / 255.f;
+				return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (!window || window->SkipItems)
+        return false;
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImDrawList* draw = window->DrawList;
+
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 size(radius * 2.f, radius * 2.f);
+    ImVec2 center = pos + ImVec2(radius, radius);
+
+    ImGui::InvisibleButton(id, size);
+    bool active = ImGui::IsItemActive();
+    bool hovered = ImGui::IsItemHovered();
+
+    float h, s, v;
+    ImGui::ColorConvertRGBtoHSV(color.x, color.y, color.z, h, s, v);
+
+    bool changed = false;
+    const int segments = 240;
+
+    for (int i = 0; i < segments; ++i)
+    {
+        float a0 = (i / (float)segments) * IM_PI * 2.f;
+        float a1 = ((i + 1) / (float)segments) * IM_PI * 2.f;
+
+        ImVec2 p0 = center + ImVec2(cosf(a0), sinf(a0)) * radius;
+        ImVec2 p1 = center + ImVec2(cosf(a1), sinf(a1)) * radius;
+
+        ImU32 col0 = ImColor::HSV(i / (float)segments, 1.f, 1.f);
+        ImU32 col1 = ImColor::HSV((i + 1) / (float)segments, 1.f, 1.f);
+
+        draw->AddTriangleFilled(center, p0, p1, col0);
+    }
+
+    draw->AddCircleFilled(center, radius, IM_COL32(255, 255, 255, 35), segments);
+    draw->AddCircle(center, radius + 2.f, IM_COL32(255, 255, 255, hovered ? 40 : 20), segments, 2.5f);
+
+    if (active)
+    {
+        ImVec2 delta = io.MousePos - center;
+        float dist = sqrtf(delta.x * delta.x + delta.y * delta.y);
+
+        if (dist <= radius)
+        {
+            float angle = atan2f(delta.y, delta.x);
+            if (angle < 0.f)
+                angle += IM_PI * 2.f;
+
+            h = angle / (IM_PI * 2.f);
+            s = ImClamp(dist / radius, 0.f, 1.f);
+            v = 1.f;
+
+            changed = true;
+        }
+    }
+
+    float handle_angle = h * IM_PI * 2.f;
+    float handle_radius = s * radius;
+    ImVec2 handle_pos = center + ImVec2(cosf(handle_angle) * handle_radius, sinf(handle_angle) * handle_radius);
+
+    draw->AddCircleFilled(handle_pos + ImVec2(1, 1), 7.f, IM_COL32(0, 0, 0, 120));
+    draw->AddCircleFilled(handle_pos, 6.f, IM_COL32(255, 255, 255, 230));
+    draw->AddCircle(handle_pos, 6.f, IM_COL32(0, 0, 0, 160), 0, 1.5f);
+
+    if (changed)
+        ImGui::ColorConvertHSVtoRGB(h, s, v, color.x, color.y, color.z);
+
+    ImGui::Dummy(ImVec2(0, 6));
+    ImGui::Separator();
+
+    if (ImGui::Button("Copy RGB"))
+    {
+        char buf[64];
+        sprintf_s(buf, "%.3f, %.3f, %.3f", color.x, color.y, color.z);
+        ImGui::SetClipboardText(buf);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Copy RGBA"))
+    {
+        char buf[64];
+        sprintf_s(buf, "%.3f, %.3f, %.3f, %.3f",
+            color.x, color.y, color.z, color.w);
+        ImGui::SetClipboardText(buf);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Paste"))
+    {
+        if (ParseColorFromClipboard(color))
+            changed = true;
+    }
+
+    return changed;
+}
 	bool ColorWheelPicker_UIM(const char* label, ImVec4& color)
 	{
 		bool changed = false;
@@ -103,6 +185,7 @@ namespace YimMenu
 		ImGui::PopID();
 		return changed;
 	}
+
 
 	static std::filesystem::path GetThemesPath()
 	{
