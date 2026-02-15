@@ -1,7 +1,7 @@
 #include "theme.hpp"
 #include "core/frontend/manager/UIManager.hpp"
 
-namespace YimMenu
+namespace YimMenu::theme
 {
 	static bool ParseColorFromClipboard(ImVec4& out)
 	{
@@ -454,3 +454,4 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 		ImGui::EndChild();
 	}
 }
+
