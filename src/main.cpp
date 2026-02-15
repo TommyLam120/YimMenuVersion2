@@ -82,6 +82,12 @@ namespace YimMenu
 
 		GUI::Init();
 		Updater::CheckForUpdates();
+		if (*Pointers.m_game_state != eGameState::Finished) {
+			LOG(INFO) << "Waiting Loading Screen";
+			while (*Pointers.m_game_state != eGameState::Finished) {
+				    std::this_thread::sleep_for(1000ms);
+				}
+			}
 
 		ScriptMgr::AddScript(std::make_unique<Script>(&NativeHooks::RunScript)); // runs once
 		ScriptMgr::AddScript(std::make_unique<Script>(&Tunables::RunScript));    // runs once
