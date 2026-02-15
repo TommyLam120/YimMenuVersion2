@@ -83,7 +83,7 @@ namespace YimMenu
 		GUI::Init();
 		Updater::CheckForUpdates();
 		if (*Pointers.m_game_state != eGameState::Finished) {
-			LOG(INFO) << "Waiting Loading Screen";
+			LOG(INFO) << "Waiting GameState";
 			while (*Pointers.m_game_state != eGameState::Finished) {
 				    std::this_thread::sleep_for(1000ms);
 				}
