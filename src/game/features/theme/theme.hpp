@@ -9,5 +9,6 @@ namespace YimMenu
 	extern void LoadTheme(const std::filesystem::path& file);
 	extern void SaveTheme(const std::filesystem::path& file);
 	extern std::filesystem::path GetThemesPath();
-
+    void AutoLoadTheme();
 }
+
