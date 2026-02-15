@@ -514,18 +514,6 @@ namespace YimMenu
 		{
 			LOG(WARNING) << "m_frame_count is NULL!";
 		}
-		if (*m_game_state != eGameState::Finished)
-		{
-			LOG(INFO) << "Waiting GameState";
-			while (*m_game_state != eGameState::Finished)
-			{
-				std::this_thread::sleep_for(1000ms);
-			}
-		}
-		else
-		{
-			LOG(WARNING) << "GameState pointer is NULL!";
-		}
 		PatternCache::Update();
 		return true;
 	}

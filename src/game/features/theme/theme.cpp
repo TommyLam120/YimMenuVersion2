@@ -1,8 +1,34 @@
 #include "theme.hpp"
 #include "core/frontend/manager/UIManager.hpp"
 
-namespace YimMenu
+namespace YimMenu::theme
 {
+	static std::filesystem::path GetThemeConfigPath()
+	{
+		auto path = GetThemesPath().parent_path();
+		path /= "theme.cfg";
+		return path;
+	}
+	static void SaveLastTheme(const std::filesystem::path& theme)
+	{
+		std::ofstream out(GetThemeConfigPath(), std::ios::trunc);
+		if (out.is_open())
+			 out << theme.filename().string();
+	}
+	static std::optional<std::filesystem::path> LoadLastTheme()
+	{
+		 std::ifstream in(GetThemeConfigPath());
+		  if (!in.is_open())
+			   return std::nullopt;
+		  std::string name;
+		  std::getline(in, name);
+		  if (name.empty())
+			  return std::nullopt;
+		  auto path = GetThemesPath() / name;
+		  if (std::filesystem::exists(path))
+			  return path;
+		  return std::nullopt;
+	}
 	static bool ParseColorFromClipboard(ImVec4& out)
 	{
 		const char* clip = ImGui::GetClipboardText();
@@ -412,7 +438,10 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 			if (selected_theme >= 0 && selected_theme < (int)themes.size())
 			{
 				if (ImGui::Button("Load Selected"))
-					LoadTheme(themes[selected_theme]);
+			    {
+					 LoadTheme(themes[selected_theme]);
+					 SaveLastTheme(themes[selected_theme]);
+				}
 			}
 		}
 		if (open_color_popup && editing != -1)
@@ -452,5 +481,10 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 			ImGui::EndPopup();
 		}
 		ImGui::EndChild();
+	}
+	void AutoLoadTheme()
+	{
+		if (auto theme = LoadLastTheme())
+			LoadTheme(*theme);
 	}
 }

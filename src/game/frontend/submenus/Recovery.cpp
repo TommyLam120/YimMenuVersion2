@@ -48,7 +48,7 @@ namespace YimMenu::Submenus
 		generalGroup->AddItem(std::make_shared<IntCommandItem>("lscarmeetrank"_J, "LS Car Meet Rank"));
 		generalGroup->AddItem(std::make_shared<CommandItem>("applylscarmeetrank"_J));
 		generalGroup->AddItem(std::make_shared<CommandItem>("bunkerlaptop"_J));
-		
+		generalGroup->AddItem(std::make_shared<CommandItem>("Rockstar_dev_tshirt"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("freechangeappearance"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("nochangeappearancecooldown"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("allowgenderchange"_J));

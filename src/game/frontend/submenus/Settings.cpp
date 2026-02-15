@@ -105,7 +105,7 @@ namespace YimMenu::Submenus
 		chat->AddItem(std::make_shared<BoolCommandItem>("clearchat"_J));
 
 			//Editor
-		theme->AddItem(std::make_shared<ImGuiItem>(theme_editor));
+		theme->AddItem(std::make_shared<ImGuiItem>(theme::theme_editor));
 
 		game->AddItem(playerEsp);
 		game->AddItem(pedEsp);

@@ -27,6 +27,7 @@
 #include "game/features/recovery/DailyActivities.hpp"
 #include "core/Update/Updater.hpp"
 #include "game/backend/CustomLabelText.hpp"
+#include "game/features/theme/theme.hpp"
 
 namespace YimMenu
 {
@@ -81,7 +82,14 @@ namespace YimMenu
 		ScriptPointers::Init();
 
 		GUI::Init();
+		theme::AutoLoadTheme();
 		Updater::CheckForUpdates();
+		if (*Pointers.m_game_state != eGameState::Finished) {
+			LOG(INFO) << "Waiting GameState";
+			while (*Pointers.m_game_state != eGameState::Finished) {
+				    std::this_thread::sleep_for(1000ms);
+				}
+			}
 
 		ScriptMgr::AddScript(std::make_unique<Script>(&NativeHooks::RunScript)); // runs once
 		ScriptMgr::AddScript(std::make_unique<Script>(&Tunables::RunScript));    // runs once
